@@ -6,7 +6,7 @@
     },
     {
       "path": "../packages/spreadsheet-vue",
-      "name": "spreadsheet-vue"
+      "name": "vue"
     }
   ]
 }
