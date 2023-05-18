@@ -1,0 +1,22 @@
+{
+  "name": "spreadsheet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xbzhang2020/spreadsheet.git"
+  },
+  "author": "zhangxingbin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xbzhang2020/spreadsheet/issues"
+  },
+  "homepage": "https://github.com/xbzhang2020/spreadsheet#readme",
+  "devDependencies": {
+    "prettier": "^2.8.8"
+  }
+}

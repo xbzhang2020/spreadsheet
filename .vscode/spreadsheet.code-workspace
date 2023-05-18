@@ -1,0 +1,12 @@
+{
+  "folders": [
+    {
+      "path": "../",
+      "name": "root"
+    },
+    {
+      "path": "../packages/spreadsheet-vue",
+      "name": "spreadsheet-vue"
+    }
+  ]
+}
