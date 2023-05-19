@@ -1,9 +1,22 @@
-<script setup lang="ts">
-import { ref } from 'vue'
+<script  lang="ts">
+import { ref, defineComponent, PropType } from 'vue'
 
-defineProps<{ msg: string }>()
-
-const count = ref(0)
+export default defineComponent({
+  props: {
+    msg: {
+      type: String,
+      default: ''
+    },
+    color: {
+      type: String as PropType<'blue' | 'red'>,
+      default: ''
+    }
+  },
+  setup() {
+    const count = ref(0)
+    return { count }
+  }
+})
 </script>
 
 <template>
