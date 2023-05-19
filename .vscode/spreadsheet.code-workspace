@@ -7,6 +7,10 @@
     {
       "path": "../packages/spreadsheet-vue",
       "name": "vue"
+    },
+    {
+      "path": "../examples/vite-project",
+      "name": "vite-proejct"
     }
   ]
 }
