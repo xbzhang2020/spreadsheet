@@ -7,7 +7,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: "./src/index.ts",
-      name: "SpreadSheet",
+      name: "Spreadsheet",
+      fileName: "spreadsheet"
     },
     rollupOptions: {
       external: ["vue"],

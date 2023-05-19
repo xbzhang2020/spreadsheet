@@ -10,6 +10,9 @@ importers:
 
   examples/vite-project:
     dependencies:
+      spreadsheet-vue:
+        specifier: workspace:^
+        version: link:../../packages/spreadsheet-vue
       vue:
         specifier: ^3.2.47
         version: 3.2.47

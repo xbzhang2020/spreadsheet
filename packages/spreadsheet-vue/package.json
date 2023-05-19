@@ -1,7 +1,6 @@
 {
   "name": "spreadsheet-vue",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,5 +15,11 @@
     "typescript": "^5.0.2",
     "vite": "^4.3.2",
     "vue-tsc": "^1.4.2"
+  },
+  "exports": {
+    ".": {
+      "import": "./lib/spreadsheet.js",
+      "require": "./lib/spreadsheet.umd.cjs"
+    }
   }
 }
