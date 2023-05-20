@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "element-plus": "^2.3.5",
     "vue": "^3.2.47"
   },
   "devDependencies": {
@@ -23,5 +24,6 @@
       "import": "./lib/spreadsheet.js",
       "require": "./lib/spreadsheet.umd.cjs"
     }
-  }
+  },
+  "typings": "./lib/index.d.ts"
 }
