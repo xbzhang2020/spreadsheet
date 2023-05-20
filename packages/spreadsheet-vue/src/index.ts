@@ -1,3 +1,3 @@
-import HelloWorld from "./components/HelloWorld.vue";
+import SpreadSheetVue from "./components/spreadsheet/SpreadSheet.vue";
 
-export { HelloWorld };
+export { SpreadSheetVue };

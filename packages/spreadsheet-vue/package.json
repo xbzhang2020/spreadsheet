@@ -25,5 +25,5 @@
       "require": "./lib/spreadsheet.umd.cjs"
     }
   },
-  "typings": "./lib/index.d.ts"
+  "typings": "./"
 }
