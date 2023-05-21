@@ -52,14 +52,65 @@ const createCopyArea = () => {
   return area;
 };
 
-// const getMainAreaData = (dataSource: TableDataSource, mainArea: CellArea, getCellValye) => {};
+const getCellAreaIndcies = (index1: number, index2: number) => {
+  if (index1 > index2) {
+    return [index2, index1];
+  }
+  return [index1, index2];
+};
 
-const setMainArea = (area: CellArea, startCell: CellInfo, endCell: CellInfo) => {
+const getMainAreaData = (table: TableInfo, startCell: CellInfo, endCell?: CellInfo) => {
+  const data: CellAreaData = {
+    rows: [],
+    columns: [],
+    values: [],
+  };
+
+  if (!endCell) {
+    endCell = startCell;
+  }
+
+  const { dataSource } = table;
+  let index1: number = null,
+    index2: number = null,
+    index3: number = null,
+    index4: number = null;
+
+  dataSource.columns.forEach((col, index) => {
+    if (col.key === startCell.column.key) {
+      index1 = index;
+    }
+    if (col.key === endCell.column.key) {
+      index2 = index;
+    }
+  });
+  const [colStart, colEnd] = getCellAreaIndcies(index1, index2);
+  data.columns = dataSource.columns.slice(colStart, colEnd + 1);
+
+  dataSource.rows.forEach((row, index) => {
+    if (row === startCell.row) {
+      index3 = index;
+    }
+    if (row === endCell.row) {
+      index4 = index;
+    }
+  });
+  const [rowStart, rowEnd] = getCellAreaIndcies(index3, index4);
+  data.rows = dataSource.rows.slice(rowStart, rowEnd + 1);
+
+  const getCellValue = table.getCellValue || ((row, column) => row[column.key]);
+  data.values = data.rows.reduce((prev, row) => {
+    const items = data.columns.map(column => getCellValue(row, column));
+    prev.push(items);
+    return prev;
+  }, []);
+
+  return data;
+};
+
+const setMainAreaRect = (area: CellArea, startCell: CellInfo, endCell: CellInfo) => {
   area.rect = getElementRect(startCell.cell);
-  //   area.data = {
-  //     rows: [startCell.row, startCell.row],
-  //     columns: [startCell.column, startCell.column],
-  //   };
+
   if (!endCell) return;
 
   const { rect, drag } = area;
@@ -68,13 +119,10 @@ const setMainArea = (area: CellArea, startCell: CellInfo, endCell: CellInfo) => 
 
   if (endRect.left >= rect.left) {
     rect.width = endRect.left - rect.left + endRect.width;
-    // data.columns[1] = endCell.column;
     drag.orientation.push("right");
   } else {
     rect.width = rect.left - endRect.left + rect.width;
     rect.left = endRect.left;
-    // data.columns[0] = endCell.column;
-    // data.columns[1] = startCell.column;
     drag.orientation.push("left");
   }
 
@@ -139,7 +187,9 @@ export class CellAreasStore {
   }
 
   setMainArea(startCell: CellInfo, endCell?: CellInfo) {
-    setMainArea(this.main, startCell, endCell);
+    setMainAreaRect(this.main, startCell, endCell);
+    this.main.data = getMainAreaData(this.table, startCell, endCell);
+    console.log(this.main.data.values);
   }
 
   setExtensionArea(endCell: CellInfo) {

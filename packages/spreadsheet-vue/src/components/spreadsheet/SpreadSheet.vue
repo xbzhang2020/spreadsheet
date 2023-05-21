@@ -9,13 +9,7 @@
         v-bind="col"
       />
     </el-table>
-    <CellArea
-      :table-info="tableInfo"
-      :is-parent-mounted="isMounted"
-      :get-table-body-container="getTableBodyContainer"
-      :data-source="dataSource"
-      :mouse-entered-cell="mouseEnteredCell"
-    />
+    <CellArea :table-info="tableInfo" />
   </div>
 </template>
 
