@@ -19,6 +19,7 @@ const initArea = (option: DeepPartial<CellArea> = {}) => {
     data: {
       rows: [],
       columns: [],
+      values: [],
     },
     drag: {
       mode: option.drag?.mode || null,
@@ -32,6 +33,7 @@ const initArea = (option: DeepPartial<CellArea> = {}) => {
 const createMainArea = () => {
   return initArea();
 };
+
 const createExtensionArea = () => {
   const area = initArea({
     drag: {
@@ -49,6 +51,8 @@ const createCopyArea = () => {
   });
   return area;
 };
+
+// const getMainAreaData = (dataSource: TableDataSource, mainArea: CellArea, getCellValye) => {};
 
 const setMainArea = (area: CellArea, startCell: CellInfo, endCell: CellInfo) => {
   area.rect = getElementRect(startCell.cell);
@@ -123,9 +127,14 @@ const setExtensionArea = (area: CellArea, mainArea: CellArea, endCell: CellInfo)
 };
 
 export class CellAreasStore {
+  table: TableInfo = null;
   main = createMainArea();
   extension = createExtensionArea();
   copy = createCopyArea();
+
+  setTableInfo(table: TableInfo) {
+    this.table = table;
+  }
 
   setMainArea(startCell: CellInfo, endCell?: CellInfo) {
     setMainArea(this.main, startCell, endCell);

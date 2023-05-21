@@ -38,43 +38,36 @@ const useMount = (params: {
 export default defineComponent({
   name: "CellArea",
   props: {
-    isParentMounted: {
+    tableInfo: {
       required: true,
-      type: Boolean,
-    },
-    getTableBodyContainer: {
-      required: true,
-      type: Function as PropType<() => Element>,
-    },
-    dataSource: {
-      default: null,
       type: Object as PropType<TableInfo>,
-    },
-    mouseEnteredCell: {
-      default: null,
-      type: Object as PropType<CellInfo>,
     },
   },
   setup(props) {
     const areaRef = ref(null);
 
-    const isParentMounted = computed(() => props.isParentMounted);
+    const isParentMounted = computed(() => props.tableInfo.isMounted);
     const getCellAreaContainer = () => {
       return areaRef.value;
     };
 
     useMount({
       isParentMounted: isParentMounted,
-      getTableBodyConatiner: props.getTableBodyContainer,
+      getTableBodyConatiner: props.tableInfo.getTableBodyContainer,
       getCellAreaContainer: getCellAreaContainer,
     });
 
     const cellAreas = reactive(createCellAreas());
+
+    watchEffect(() => {
+      cellAreas.setTableInfo(props.tableInfo);
+    });
+
     const currentCell: Ref<CellInfo> = ref(null);
     const selectedCell: Ref<CellInfo> = ref(null);
 
     watchEffect(() => {
-      currentCell.value = props.mouseEnteredCell;
+      currentCell.value = props.tableInfo.mouseEnteredCell;
     });
 
     const handleMousedown = (event: MouseEvent) => {
@@ -99,9 +92,14 @@ export default defineComponent({
       }
       if (cellAreas.extension.drag.dragging) {
         cellAreas.setExtensionArea(currentCell.value);
-        // console.log(cellAreas.extension.rect)
         return;
       }
+    };
+
+    const handleMouseup = () => {
+      if (!cellAreas.extension.drag.dragging) return;
+      cellAreas.extendMainArea();
+      cellAreas.clearArea(cellAreas.extension);
     };
 
     const handleClick = () => {
@@ -126,6 +124,7 @@ export default defineComponent({
     onMounted(() => {
       window.addEventListener("mousedown", handleMousedown);
       window.addEventListener("mousemove", handleMousemove);
+      window.addEventListener("mouseup", handleMouseup);
       window.addEventListener("click", handleClick);
       window.addEventListener("dblclick", handleDbClick);
     });
@@ -133,6 +132,7 @@ export default defineComponent({
     onBeforeUnmount(() => {
       window.removeEventListener("mousedown", handleMousedown);
       window.removeEventListener("mousemove", handleMousemove);
+      window.removeEventListener("mouseup", handleMouseup);
       window.removeEventListener("click", handleClick);
       window.removeEventListener("dblclick", handleDbClick);
     });

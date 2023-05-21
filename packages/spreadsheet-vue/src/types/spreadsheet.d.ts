@@ -2,26 +2,6 @@ declare type DeepPartial<T> = {
   [U in keyof T]?: T[U] extends object ? DeepPartial<T[U]> : T[U];
 };
 
-declare interface BaseObject {
-  [key: string]: unknown;
-}
-
-declare interface TableInfo {
-  rows: BaseObject[];
-  columns: ColumnInfo[];
-}
-
-declare interface ColumnInfo extends BaseObject {
-  key: string;
-  title: string;
-}
-
-declare interface CellInfo {
-  row: BaseObject;
-  column: ColumnInfo;
-  cell: HTMLElement;
-}
-
 declare interface CellAreas {
   main: CellArea;
   extension: CellArea;
@@ -44,6 +24,7 @@ declare interface CellAreaRect {
 declare interface CellAreaData {
   rows: BaseObject[];
   columns: ColumnInfo[];
+  values: any[][];
 }
 
 declare interface CellAreaDrag {

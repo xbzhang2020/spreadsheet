@@ -1,8 +1,8 @@
 <template>
   <div ref="container">
-    <el-table :data="tableInfo.rows" style="width: 100%" @cell-mouse-enter="hadnleCellMouseEnter" class="table">
+    <el-table :data="dataSource.rows" style="width: 100%" @cell-mouse-enter="hadnleCellMouseEnter" class="table">
       <el-table-column
-        v-for="col in tableInfo.columns"
+        v-for="col in dataSource.columns"
         :key="col.prop"
         :prop="col.key"
         :label="col.title"
@@ -10,9 +10,10 @@
       />
     </el-table>
     <CellArea
+      :table-info="tableInfo"
       :is-parent-mounted="isMounted"
       :get-table-body-container="getTableBodyContainer"
-      :data-source="tableInfo"
+      :data-source="dataSource"
       :mouse-entered-cell="mouseEnteredCell"
     />
   </div>
@@ -33,7 +34,7 @@ const getTableBodyContainer = () => {
 
 const isMounted = useMounted();
 
-const tableInfo = computed<TableInfo>(() => {
+const dataSource = computed<TableDataSource>(() => {
   const { rows, columns } = getTableDataSource(6, 8);
   return {
     rows,
@@ -53,6 +54,13 @@ const hadnleCellMouseEnter = (row: BaseObject, column: any, cell: any) => {
     cell,
   };
 };
+
+const tableInfo = computed<TableInfo>(() => ({
+  dataSource: dataSource.value,
+  getTableBodyContainer,
+  mouseEnteredCell: mouseEnteredCell.value,
+  isMounted: isMounted.value,
+}));
 </script>
 
 <style lang="scss">
