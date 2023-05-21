@@ -1,3 +1,5 @@
+import { getDestValues } from "@/utils/process";
+
 const getElementRect = (element: HTMLElement) => {
   const pos: CellAreaRect = {
     left: element.offsetLeft,
@@ -200,7 +202,39 @@ const setExtensionArea = (area: CellArea, mainArea: CellArea, endCell: CellInfo,
   area.data.indices = indices;
 };
 
-// const getExtendedAreaData = (table: TableInfo, mainArea: CellAreaData, extensionArea: CellAreaData) => {};
+const getExtendedAreaValues = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
+  const source = mainArea.data;
+  const dest = extensionArea.data;
+  const orientation = extensionArea.drag.orientation;
+  const getCellValue = table.getCellValue || getCellValueDefault;
+  const values: any[] = [];
+
+  if (orientation.includes("left") || orientation.includes("right")) {
+    const destColumns = dest.columns.filter(item => !source.columns.includes(item));
+    source.rows.forEach(row => {
+      const sourceValues = source.columns.map(column => getCellValue(row, column));
+      const destValues = getDestValues(sourceValues, destColumns.length, orientation.includes("left"));
+      values.push(destValues);
+    });
+    return values;
+  }
+
+  if (orientation.includes("top") || orientation.includes("bottom")) {
+    const destRows = dest.rows.filter(item => !source.rows.includes(item));
+    destRows.forEach(() => {
+      values.push([]);
+    });
+
+    source.columns.forEach((column, colIndex) => {
+      const sourceValues = source.rows.map(row => getCellValue(row, column));
+      const destValues = getDestValues(sourceValues, destRows.length, orientation.includes("top"));
+      destValues.forEach((value, rowIndex) => {
+        values[rowIndex][colIndex] = value;
+      });
+    });
+  }
+  return values;
+};
 
 export class CellAreasStore {
   table: TableInfo = null;
@@ -222,7 +256,6 @@ export class CellAreasStore {
     const indices = this.extension.data.indices;
     const data = getCellAreaDataByIndices(this.table, indices);
     this.extension.data = data;
-    console.log(data.values);
   }
 
   setCopyArea() {
@@ -243,6 +276,10 @@ export class CellAreasStore {
     // area.data.rows = []
     // area.data.columns = []
   }
+
+  getExtendedValues() {
+    return getExtendedAreaValues(this.table, this.main, this.extension);
+  }
 }
 
 export const getCellAreaStyle = (area: CellArea) => {
@@ -253,6 +290,30 @@ export const getCellAreaStyle = (area: CellArea) => {
     width: width + "px",
     height: height + "px",
     display: width || height ? "block" : "none",
+  };
+};
+
+export const getCellExtensionAreaTip = (extensionArea: CellArea, values: any[][]) => {
+  if (values.length === 0 || !extensionArea.drag.dragging) return null;
+
+  const last = values[values.length - 1];
+  let left = 0;
+  const top = extensionArea.rect.top + extensionArea.rect.height + 5;
+  let value = null;
+  if (extensionArea.drag.orientation.includes("left")) {
+    left = extensionArea.rect.left;
+    value = last[0];
+  } else {
+    left = extensionArea.rect.left + extensionArea.rect.width + 5;
+    value = last[last.length - 1];
+  }
+
+  return {
+    style: {
+      left: left + "px",
+      top: top + "px",
+    },
+    value,
   };
 };
 

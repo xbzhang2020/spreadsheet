@@ -4,13 +4,16 @@
       <div class="spread-cell-area-main-btn" @mousedown.stop="handleDragBtnMousedown"></div>
     </div>
     <div class="spread-cell-area-extension" :style="getCellAreaStyle(cellAreas.extension)"></div>
+    <div v-if="extensionAreaTip" class="spread-cell-area-extension-tip" :style="extensionAreaTip.style">
+      {{ extensionAreaTip.value }}
+    </div>
     <div class="spread-cell-area-copy"></div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType, watchEffect, Ref, computed, ref, onMounted, onBeforeUnmount, reactive } from "vue";
-import { createCellAreas, getCellAreaStyle } from "../../model/cell-area";
+import { createCellAreas, getCellAreaStyle, getCellExtensionAreaTip } from "../../model/cell-area";
 
 const useMount = (params: {
   isParentMounted: Ref<boolean>;
@@ -65,6 +68,8 @@ export default defineComponent({
 
     const currentCell: Ref<CellInfo> = ref(null);
     const selectedCell: Ref<CellInfo> = ref(null);
+    const extendedValues: Ref<any[]> = ref([]);
+    const extensionAreaTip = computed(() => getCellExtensionAreaTip(cellAreas.extension, extendedValues.value));
 
     watchEffect(() => {
       currentCell.value = props.tableInfo.mouseEnteredCell;
@@ -92,6 +97,7 @@ export default defineComponent({
       }
       if (cellAreas.extension.drag.dragging) {
         cellAreas.setExtensionArea(currentCell.value);
+        extendedValues.value = cellAreas.getExtendedValues();
         return;
       }
     };
@@ -137,7 +143,7 @@ export default defineComponent({
       window.removeEventListener("dblclick", handleDbClick);
     });
 
-    return { areaRef, cellAreas, getCellAreaStyle, handleDragBtnMousedown };
+    return { areaRef, cellAreas, getCellAreaStyle, handleDragBtnMousedown, extensionAreaTip };
   },
 });
 </script>
@@ -166,6 +172,18 @@ export default defineComponent({
     position: absolute;
     border: 1px dashed #0a70f5;
     pointer-events: none;
+    z-index: 1;
+  }
+  &-extension-tip {
+    position: absolute;
+    background-color: #000;
+    height: 22px;
+    min-width: 30px;
+    color: #fff;
+    text-align: center;
+    font-size: 12px;
+    line-height: 22px;
+    border-radius: 3px;
     z-index: 1;
   }
 }

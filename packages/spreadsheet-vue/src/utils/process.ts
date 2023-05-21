@@ -9,3 +9,33 @@ export const getDiffValue = (list: number[]) => {
   }
   return diffValue;
 };
+
+// 扩展数据
+export const getDestValues = (sourceValues: any[], length: number, appendFisrt = false) => {
+  const diffValue = typeof sourceValues[0] === "number" ? getDiffValue(sourceValues as number[]) : null;
+  const res = [];
+
+  // 处理等差数列
+  if (diffValue !== null) {
+    if (appendFisrt) {
+      let lastValue = Number(sourceValues[0]);
+      for (let i = 0; i < length; i++) {
+        lastValue -= diffValue;
+        res[i] = lastValue;
+      }
+      return res.reverse();
+    }
+    let lastValue = Number(sourceValues[sourceValues.length - 1]);
+    for (let i = 0; i < length; i++) {
+      lastValue += diffValue;
+      res[i] = lastValue;
+    }
+    return res;
+  }
+
+  for (let i = 0; i < length; i++) {
+    const pos = i % sourceValues.length;
+    res[i] = sourceValues[pos];
+  }
+  return res;
+};
