@@ -92,14 +92,14 @@ const setExtensionArea = (area: CellArea, mainArea: CellArea, endCell: CellInfo)
   const { rect: mainRect } = mainArea;
   const endRect = getElementRect(endCell.cell);
   const rect = { ...mainRect };
-  const lastOrientation = area.drag.orientation || [];
+  let lastOrientation = area.drag.orientation || [];
   area.drag.orientation = [];
   // const data = {
   //   rows: [...mainData.rows],
   //   columns: [...mainData.columns],
   // }
 
-  if (lastOrientation.length === 0 || lastOrientation.includes("left") || lastOrientation.includes("right"))
+  if (lastOrientation.length === 0 || lastOrientation.includes("left") || lastOrientation.includes("right")) {
     if (endRect.left < mainRect.left) {
       rect.width = mainRect.left - endRect.left + mainRect.width;
       rect.left = endRect.left;
@@ -110,6 +110,8 @@ const setExtensionArea = (area: CellArea, mainArea: CellArea, endCell: CellInfo)
       //   data.columns[1] = endCell.column
       area.drag.orientation.push("right");
     }
+    lastOrientation = area.drag.orientation;
+  }
 
   if (lastOrientation.length === 0 || lastOrientation.includes("top") || lastOrientation.includes("bottom")) {
     if (endRect.top < mainRect.top) {
