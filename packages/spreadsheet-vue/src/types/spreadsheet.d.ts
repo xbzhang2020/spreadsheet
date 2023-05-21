@@ -25,6 +25,7 @@ declare interface CellAreaData {
   rows: BaseObject[];
   columns: ColumnInfo[];
   values: any[][];
+  indices: number[][];
 }
 
 declare interface CellAreaDrag {

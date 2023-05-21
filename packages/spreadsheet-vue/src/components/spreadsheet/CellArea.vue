@@ -98,8 +98,8 @@ export default defineComponent({
 
     const handleMouseup = () => {
       if (!cellAreas.extension.drag.dragging) return;
-      cellAreas.extendMainArea();
-      cellAreas.clearArea(cellAreas.extension);
+      // cellAreas.extendMainArea();
+      // cellAreas.clearArea(cellAreas.extension);
     };
 
     const handleClick = () => {
