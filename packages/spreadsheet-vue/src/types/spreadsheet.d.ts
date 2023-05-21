@@ -52,4 +52,6 @@ declare interface CellAreaDrag {
   orientation: CellAreaDragOrientation[];
 }
 
+declare type CellAreaDragMode = "row" | "column" | "cell";
+
 declare type CellAreaDragOrientation = "left" | "right" | "center" | "top" | "bottom";

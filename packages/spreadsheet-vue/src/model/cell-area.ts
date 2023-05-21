@@ -88,29 +88,34 @@ const setExtensionArea = (area: CellArea, mainArea: CellArea, endCell: CellInfo)
   const { rect: mainRect } = mainArea;
   const endRect = getElementRect(endCell.cell);
   const rect = { ...mainRect };
+  const lastOrientation = area.drag.orientation || [];
   area.drag.orientation = [];
   // const data = {
   //   rows: [...mainData.rows],
   //   columns: [...mainData.columns],
   // }
-  if (endRect.left < mainRect.left) {
-    rect.width = mainRect.left - endRect.left + mainRect.width;
-    rect.left = endRect.left;
-    //   data.columns[0] = endCell.column
-    area.drag.orientation.push("left");
-  } else if (endRect.left + endRect.width > mainRect.left + mainRect.width) {
-    rect.width = endRect.left - mainRect.left + endRect.width;
-    //   data.columns[1] = endCell.column
-    area.drag.orientation.push("right");
-  }
 
-  if (endRect.top < mainRect.top) {
-    rect.height = mainRect.top - endRect.top + endRect.height;
-    rect.top = endRect.top;
-    area.drag.orientation.push("top");
-  } else if (endRect.top + endRect.height > mainRect.top + mainRect.height) {
-    rect.height = endRect.top - mainRect.top + endRect.height;
-    area.drag.orientation.push("bottom");
+  if (lastOrientation.length === 0 || lastOrientation.includes("left") || lastOrientation.includes("right"))
+    if (endRect.left < mainRect.left) {
+      rect.width = mainRect.left - endRect.left + mainRect.width;
+      rect.left = endRect.left;
+      //   data.columns[0] = endCell.column
+      area.drag.orientation.push("left");
+    } else if (endRect.left + endRect.width > mainRect.left + mainRect.width) {
+      rect.width = endRect.left - mainRect.left + endRect.width;
+      //   data.columns[1] = endCell.column
+      area.drag.orientation.push("right");
+    }
+
+  if (lastOrientation.length === 0 || lastOrientation.includes("top") || lastOrientation.includes("bottom")) {
+    if (endRect.top < mainRect.top) {
+      rect.height = mainRect.top - endRect.top + mainRect.height;
+      rect.top = endRect.top;
+      area.drag.orientation.push("top");
+    } else if (endRect.top + endRect.height > mainRect.top + mainRect.height) {
+      rect.height = endRect.top - mainRect.top + endRect.height;
+      area.drag.orientation.push("bottom");
+    }
   }
 
   area.rect = rect;

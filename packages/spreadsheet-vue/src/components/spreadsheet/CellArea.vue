@@ -99,7 +99,7 @@ export default defineComponent({
       }
       if (cellAreas.extension.drag.dragging) {
         cellAreas.setExtensionArea(currentCell.value);
-        console.log(cellAreas.extension.rect)
+        // console.log(cellAreas.extension.rect)
         return;
       }
     };
