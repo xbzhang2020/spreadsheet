@@ -7,7 +7,7 @@ import dts from "vite-plugin-dts";
 export default defineConfig({
   plugins: [vue(), dts()],
   build: {
-    outDir: 'lib',
+    outDir: "lib",
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "Spreadsheet",
@@ -21,6 +21,11 @@ export default defineConfig({
           vue: "Vue",
         },
       },
+    },
+  },
+  resolve: {
+    alias: {
+      "@": resolve("src"),
     },
   },
 });

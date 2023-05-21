@@ -1,7 +1,13 @@
 <template>
   <div ref="container">
-    <el-table :data="tableData" style="width: 100%" @cell-mouse-enter="hadnleCellMouseEnter" class="table">
-      <el-table-column v-for="col in columns" :key="col.prop" :prop="col.prop" :label="col.label" v-bind="col" />
+    <el-table :data="tableInfo.rows" style="width: 100%" @cell-mouse-enter="hadnleCellMouseEnter" class="table">
+      <el-table-column
+        v-for="col in tableInfo.columns"
+        :key="col.prop"
+        :prop="col.key"
+        :label="col.title"
+        v-bind="col"
+      />
     </el-table>
     <CellArea
       :is-parent-mounted="isMounted"
@@ -17,6 +23,7 @@ import { ref, computed } from "vue";
 import CellArea from "./CellArea.vue";
 import { getElTableBodyContainer } from "../../utils/adapter";
 import { useMounted } from "@vueuse/core";
+import { getTableDataSource } from "@/utils/mock";
 
 const container = ref(null);
 
@@ -26,54 +33,11 @@ const getTableBodyContainer = () => {
 
 const isMounted = useMounted();
 
-const tableData = ref([
-  {
-    date: "2016-05-03",
-    name: "Tom",
-    address: "No. 189, Grove St, Los Angeles",
-  },
-  {
-    date: "2016-05-02",
-    name: "Tom",
-    address: "No. 189, Grove St, Los Angeles",
-  },
-  {
-    date: "2016-05-04",
-    name: "Tom",
-    address: "No. 189, Grove St, Los Angeles",
-  },
-  {
-    date: "2016-05-01",
-    name: "Tom",
-    address: "No. 189, Grove St, Los Angeles",
-  },
-]);
-
-const columns = [
-  {
-    prop: "date",
-    label: "Date",
-    width: 180,
-  },
-  {
-    prop: "name",
-    label: "Name",
-    width: 180,
-  },
-  {
-    prop: "address",
-    label: "Address",
-  },
-];
-
 const tableInfo = computed<TableInfo>(() => {
+  const { rows, columns } = getTableDataSource(6, 8);
   return {
-    rows: tableData.value,
-    columns: columns.map(item => ({
-      ...item,
-      key: item.prop,
-      title: item.label,
-    })),
+    rows,
+    columns,
   };
 });
 

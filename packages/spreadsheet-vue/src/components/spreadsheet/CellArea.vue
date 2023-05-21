@@ -3,7 +3,7 @@
     <div class="spread-cell-area-main" :style="getCellAreaStyle(cellAreas.main)">
       <div class="spread-cell-area-main-btn" @mousedown.stop="handleDragBtnMousedown"></div>
     </div>
-    <div class="spread-cell-area-extension"></div>
+    <div class="spread-cell-area-extension" :style="getCellAreaStyle(cellAreas.extension)"></div>
     <div class="spread-cell-area-copy"></div>
   </div>
 </template>
@@ -95,6 +95,12 @@ export default defineComponent({
     const handleMousemove = () => {
       if (cellAreas.main.drag.dragging) {
         cellAreas.setMainArea(selectedCell.value, currentCell.value);
+        return;
+      }
+      if (cellAreas.extension.drag.dragging) {
+        cellAreas.setExtensionArea(currentCell.value);
+        console.log(cellAreas.extension.rect)
+        return;
       }
     };
 
@@ -103,18 +109,32 @@ export default defineComponent({
         cellAreas.main.drag.dragging = false;
         return;
       }
+
+      if (cellAreas.extension.drag.dragging) {
+        cellAreas.extension.drag.dragging = false;
+        return;
+      }
+
+      cellAreas.clearArea(cellAreas.main);
+    };
+
+    const handleDbClick = () => {
+      cellAreas.clearArea(cellAreas.main);
+      cellAreas.clearArea(cellAreas.extension);
     };
 
     onMounted(() => {
       window.addEventListener("mousedown", handleMousedown);
-      window.addEventListener("click", handleClick);
       window.addEventListener("mousemove", handleMousemove);
+      window.addEventListener("click", handleClick);
+      window.addEventListener("dblclick", handleDbClick);
     });
 
     onBeforeUnmount(() => {
       window.removeEventListener("mousedown", handleMousedown);
-      window.removeEventListener("click", handleClick);
       window.removeEventListener("mousemove", handleMousemove);
+      window.removeEventListener("click", handleClick);
+      window.removeEventListener("dblclick", handleDbClick);
     });
 
     return { areaRef, cellAreas, getCellAreaStyle, handleDragBtnMousedown };
@@ -141,6 +161,12 @@ export default defineComponent({
     border-top-left-radius: 2px;
     pointer-events: auto;
     cursor: crosshair;
+  }
+  &-extension {
+    position: absolute;
+    border: 1px dashed #0a70f5;
+    pointer-events: none;
+    z-index: 1;
   }
 }
 </style>
