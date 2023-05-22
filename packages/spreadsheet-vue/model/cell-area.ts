@@ -34,7 +34,8 @@ const initArea = (option: DeepPartial<CellArea> = {}) => {
 };
 
 const createMainArea = () => {
-  return initArea();
+  const main = initArea();
+  return main;
 };
 
 const createExtensionArea = () => {

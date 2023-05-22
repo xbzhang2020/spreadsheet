@@ -12,6 +12,7 @@ declare interface CellArea {
   rect: CellAreaRect;
   data: CellAreaData;
   drag: CellAreaDrag;
+  setArea?: Function;
 }
 
 declare interface CellAreaRect {
