@@ -7,7 +7,7 @@
     <div v-if="extensionAreaTip" class="spread-cell-area-extension-tip" :style="extensionAreaTip.style">
       {{ extensionAreaTip.value }}
     </div>
-    <div v-if="extendedArea" class="spread-cell-area-main-extended" :style="getCellAreaStyle(extendedArea)"></div>
+    <div v-if="showExtendedArea" class="spread-cell-area-main-extended" :style="getCellAreaStyle(extendedArea)"></div>
     <div class="spread-cell-area-copy"></div>
   </div>
 </template>
@@ -70,6 +70,7 @@ export default defineComponent({
     const currentCell: Ref<CellInfo> = ref(null);
     const selectedCell: Ref<CellInfo> = ref(null);
     const extendedArea: Ref<CellArea> = ref(null);
+    const showExtendedArea = ref(false);
 
     const extensionAreaTip = computed(() =>
       getCellExtensionAreaTip(cellAreas.extension, extendedArea.value?.data.values)
@@ -120,16 +121,18 @@ export default defineComponent({
     };
 
     const handleClick = () => {
+      showExtendedArea.value = false;
+
       if (cellAreas.main.drag.dragging) {
         cellAreas.main.drag.dragging = false;
         return;
       }
 
       if (cellAreas.extension.drag.dragging) {
+        showExtendedArea.value = true;
         cellAreas.extension.drag.dragging = false;
         return;
       }
-
       cellAreas.clearArea(cellAreas.main);
     };
 
@@ -154,7 +157,15 @@ export default defineComponent({
       window.removeEventListener("dblclick", handleDbClick);
     });
 
-    return { areaRef, cellAreas, getCellAreaStyle, handleDragBtnMousedown, extensionAreaTip, extendedArea };
+    return {
+      areaRef,
+      cellAreas,
+      getCellAreaStyle,
+      handleDragBtnMousedown,
+      extensionAreaTip,
+      extendedArea,
+      showExtendedArea,
+    };
   },
 });
 </script>

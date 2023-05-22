@@ -236,7 +236,7 @@ const setExtensionArea = (area: CellArea, mainArea: CellArea, endCell: CellInfo,
 
 const getExtendedArea = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
   const area = initArea();
-  
+
   const { rect: mainAreaRect, data: mainAreaData } = mainArea;
   const { rect: extensionAreaRect, data: extensionAreaData } = extensionArea;
 
@@ -344,6 +344,7 @@ export class CellAreasStore {
 }
 
 export const getCellAreaStyle = (area: CellArea) => {
+  if (!area) return {};
   const { left, top, width, height } = area.rect;
   return {
     left: left + "px",
