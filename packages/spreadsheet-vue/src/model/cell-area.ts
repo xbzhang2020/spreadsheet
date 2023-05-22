@@ -63,6 +63,9 @@ const getCellAreaIndcies = (index1: number, index2: number) => {
 };
 
 const getCellValueDefault = (row: BaseObject, column: ColumnInfo) => row[column.key];
+const setCellValueDafault = (row: BaseObject, column: ColumnInfo, value: any) => {
+  row[column.key] = value;
+};
 
 const getCellAreaDataByIndices = (table: TableInfo, indices: CellAreaData["indices"]) => {
   const data: CellAreaData = {
@@ -80,6 +83,35 @@ const getCellAreaDataByIndices = (table: TableInfo, indices: CellAreaData["indic
     prev.push(items);
     return prev;
   }, []);
+  return data;
+};
+
+export const setAreaCells = (table: TableInfo, startCell: CellInfo, source: any[][]) => {
+  if (!source.length || !source[0]?.length) return;
+  const setCellValue = table.setCellValue || setCellValueDafault;
+  const { dataSource } = table;
+
+  const colStart = dataSource.columns.findIndex(col => col.key === startCell.column.key);
+  const colEnd = Math.min(colStart + source[0].length, dataSource.columns.length);
+  const rowStart = dataSource.rows.findIndex(row => row === startCell.row);
+  const rowEnd = Math.min(rowStart + source.length, dataSource.rows.length);
+
+  const data: CellAreaData = {
+    rows: dataSource.rows.slice(rowStart, rowEnd),
+    columns: dataSource.columns.slice(colStart, colEnd),
+    values: source,
+    indices: [
+      [rowStart, colStart],
+      [rowEnd, colEnd],
+    ],
+  };
+
+  data.rows.forEach((row, i) => {
+    data.columns.forEach((col, j) => {
+      setCellValue(row, col, data.values[i][j]);
+    });
+  });
+
   return data;
 };
 
@@ -202,12 +234,19 @@ const setExtensionArea = (area: CellArea, mainArea: CellArea, endCell: CellInfo,
   area.data.indices = indices;
 };
 
-const getExtendedAreaValues = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
+const getExtendedAreaData = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
   const source = mainArea.data;
   const dest = extensionArea.data;
   const orientation = extensionArea.drag.orientation;
   const getCellValue = table.getCellValue || getCellValueDefault;
   const values: any[] = [];
+
+  const data: CellAreaData = {
+    rows: [],
+    columns: [],
+    values: [],
+    indices: [],
+  };
 
   if (orientation.includes("left") || orientation.includes("right")) {
     const destColumns = dest.columns.filter(item => !source.columns.includes(item));
@@ -216,7 +255,10 @@ const getExtendedAreaValues = (table: TableInfo, mainArea: CellArea, extensionAr
       const destValues = getDestValues(sourceValues, destColumns.length, orientation.includes("left"));
       values.push(destValues);
     });
-    return values;
+    data.rows = source.rows;
+    data.columns = destColumns;
+    data.values = values;
+    return data;
   }
 
   if (orientation.includes("top") || orientation.includes("bottom")) {
@@ -232,8 +274,11 @@ const getExtendedAreaValues = (table: TableInfo, mainArea: CellArea, extensionAr
         values[rowIndex][colIndex] = value;
       });
     });
+    data.rows = destRows;
+    data.columns = source.columns;
+    data.values = values;
   }
-  return values;
+  return data;
 };
 
 export class CellAreasStore {
@@ -264,7 +309,7 @@ export class CellAreasStore {
 
   extendMainArea() {
     this.main.rect = { ...this.extension.rect };
-    // this.main.data = { ...this.extension.data }
+    this.main.data = { ...this.extension.data };
   }
 
   clearArea(area: CellArea) {
@@ -273,12 +318,20 @@ export class CellAreasStore {
     area.rect.width = 0;
     area.rect.height = 0;
 
-    // area.data.rows = []
-    // area.data.columns = []
+    area.data = {
+      rows: [],
+      columns: [],
+      values: [],
+      indices: [],
+    };
   }
 
-  getExtendedValues() {
-    return getExtendedAreaValues(this.table, this.main, this.extension);
+  getExtendedData() {
+    return getExtendedAreaData(this.table, this.main, this.extension);
+  }
+
+  setAreaCells(startCell: CellInfo, source: any[][]) {
+    return setAreaCells(this.table, startCell, source);
   }
 }
 
@@ -294,7 +347,7 @@ export const getCellAreaStyle = (area: CellArea) => {
 };
 
 export const getCellExtensionAreaTip = (extensionArea: CellArea, values: any[][]) => {
-  if (values.length === 0 || !extensionArea.drag.dragging) return null;
+  if (!values?.length || !extensionArea.drag.dragging) return null;
 
   const last = values[values.length - 1];
   let left = 0;

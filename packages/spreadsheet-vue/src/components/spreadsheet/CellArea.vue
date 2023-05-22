@@ -68,8 +68,8 @@ export default defineComponent({
 
     const currentCell: Ref<CellInfo> = ref(null);
     const selectedCell: Ref<CellInfo> = ref(null);
-    const extendedValues: Ref<any[]> = ref([]);
-    const extensionAreaTip = computed(() => getCellExtensionAreaTip(cellAreas.extension, extendedValues.value));
+    const extendedData: Ref<CellAreaData> = ref(null);
+    const extensionAreaTip = computed(() => getCellExtensionAreaTip(cellAreas.extension, extendedData.value?.values));
 
     watchEffect(() => {
       currentCell.value = props.tableInfo.mouseEnteredCell;
@@ -97,15 +97,22 @@ export default defineComponent({
       }
       if (cellAreas.extension.drag.dragging) {
         cellAreas.setExtensionArea(currentCell.value);
-        extendedValues.value = cellAreas.getExtendedValues();
+        extendedData.value = cellAreas.getExtendedData();
         return;
       }
     };
 
     const handleMouseup = () => {
       if (!cellAreas.extension.drag.dragging) return;
-      // cellAreas.extendMainArea();
-      // cellAreas.clearArea(cellAreas.extension);
+
+      const startCell: CellInfo = {
+        row: extendedData.value.rows[0],
+        column: extendedData.value.columns[0],
+        cell: null,
+      };
+      cellAreas.setAreaCells(startCell, extendedData.value.values);
+      cellAreas.extendMainArea();
+      cellAreas.clearArea(cellAreas.extension);
     };
 
     const handleClick = () => {
