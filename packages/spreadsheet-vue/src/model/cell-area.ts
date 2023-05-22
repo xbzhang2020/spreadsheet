@@ -154,7 +154,7 @@ const getMainAreaData = (table: TableInfo, startCell: CellInfo, endCell?: CellIn
   return getCellAreaDataByIndices(table, indices);
 };
 
-const setMainArea = (area: CellArea, startCell: CellInfo, endCell: CellInfo, table: TableInfo) => {
+const setMainArea = (area: CellArea, startCell: CellInfo, endCell: CellInfo) => {
   area.rect = getElementRect(startCell.cell);
 
   if (!endCell) return;
@@ -292,7 +292,7 @@ export class CellAreasStore {
   }
 
   setMainArea(startCell: CellInfo, endCell?: CellInfo) {
-    setMainArea(this.main, startCell, endCell, this.table);
+    setMainArea(this.main, startCell, endCell);
     this.main.data = getMainAreaData(this.table, startCell, endCell);
   }
 
