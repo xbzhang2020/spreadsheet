@@ -7,6 +7,7 @@
     <div v-if="extensionAreaTip" class="spread-cell-area-extension-tip" :style="extensionAreaTip.style">
       {{ extensionAreaTip.value }}
     </div>
+    <div v-if="extendedArea" class="spread-cell-area-main-extended" :style="getCellAreaStyle(extendedArea)"></div>
     <div class="spread-cell-area-copy"></div>
   </div>
 </template>
@@ -68,8 +69,11 @@ export default defineComponent({
 
     const currentCell: Ref<CellInfo> = ref(null);
     const selectedCell: Ref<CellInfo> = ref(null);
-    const extendedData: Ref<CellAreaData> = ref(null);
-    const extensionAreaTip = computed(() => getCellExtensionAreaTip(cellAreas.extension, extendedData.value?.values));
+    const extendedArea: Ref<CellArea> = ref(null);
+
+    const extensionAreaTip = computed(() =>
+      getCellExtensionAreaTip(cellAreas.extension, extendedArea.value?.data.values)
+    );
 
     watchEffect(() => {
       currentCell.value = props.tableInfo.mouseEnteredCell;
@@ -97,7 +101,7 @@ export default defineComponent({
       }
       if (cellAreas.extension.drag.dragging) {
         cellAreas.setExtensionArea(currentCell.value);
-        extendedData.value = cellAreas.getExtendedData();
+        extendedArea.value = cellAreas.getExtendedArea();
         return;
       }
     };
@@ -106,11 +110,11 @@ export default defineComponent({
       if (!cellAreas.extension.drag.dragging) return;
 
       const startCell: CellInfo = {
-        row: extendedData.value.rows[0],
-        column: extendedData.value.columns[0],
+        row: extendedArea.value.data.rows[0],
+        column: extendedArea.value.data.columns[0],
         cell: null,
       };
-      cellAreas.setAreaCells(startCell, extendedData.value.values);
+      cellAreas.setAreaCells(startCell, extendedArea.value.data.values);
       cellAreas.extendMainArea();
       cellAreas.clearArea(cellAreas.extension);
     };
@@ -150,7 +154,7 @@ export default defineComponent({
       window.removeEventListener("dblclick", handleDbClick);
     });
 
-    return { areaRef, cellAreas, getCellAreaStyle, handleDragBtnMousedown, extensionAreaTip };
+    return { areaRef, cellAreas, getCellAreaStyle, handleDragBtnMousedown, extensionAreaTip, extendedArea };
   },
 });
 </script>
@@ -174,6 +178,11 @@ export default defineComponent({
     border-top-left-radius: 2px;
     pointer-events: auto;
     cursor: crosshair;
+  }
+  &-main-extended {
+    position: absolute;
+    background-color: #0a70f52e;
+    z-index: 1;
   }
   &-extension {
     position: absolute;
