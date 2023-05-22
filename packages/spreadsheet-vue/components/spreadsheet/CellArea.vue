@@ -81,6 +81,7 @@ export default defineComponent({
     });
 
     const handleMousedown = (event: MouseEvent) => {
+      showExtendedArea.value = false;
       const target = event.target as HTMLElement;
       if (cellAreas.main.drag.dragging || !currentCell.value || !currentCell.value.cell.contains(target)) {
         return;
@@ -117,23 +118,22 @@ export default defineComponent({
       };
       cellAreas.setAreaCells(startCell, extendedArea.value.data.values);
       cellAreas.extendMainArea();
+      showExtendedArea.value = true;
       cellAreas.clearArea(cellAreas.extension);
     };
 
     const handleClick = () => {
-      showExtendedArea.value = false;
-
       if (cellAreas.main.drag.dragging) {
         cellAreas.main.drag.dragging = false;
         return;
       }
 
       if (cellAreas.extension.drag.dragging) {
-        showExtendedArea.value = true;
         cellAreas.extension.drag.dragging = false;
         return;
       }
       cellAreas.clearArea(cellAreas.main);
+      showExtendedArea.value = false;
     };
 
     const handleDbClick = () => {
