@@ -1,4 +1,4 @@
-import { getDestValues } from "@/utils/process";
+import { getDestValues } from "../utils/process";
 
 const getElementRect = (element: HTMLElement) => {
   const pos: CellAreaRect = {

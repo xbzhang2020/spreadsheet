@@ -1,15 +1,16 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import dts from "vite-plugin-dts";
+import _default from "element-plus/es/locale/lang/af";
+// import dts from "vite-plugin-dts";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), dts()],
+  plugins: [vue()],
   build: {
     outDir: "lib",
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
+      entry: resolve(__dirname, "./index.ts"),
       name: "Spreadsheet",
       fileName: "spreadsheet",
     },
@@ -25,7 +26,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": resolve("src"),
+      "@": resolve(__dirname, '.'),
     },
   },
 });

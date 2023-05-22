@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SpreadSheet from './components/spreadsheet/SpreadSheet.vue';
+import SpreadSheet from '../components/spreadsheet/SpreadSheet.vue';
 </script>
 
 <template>
