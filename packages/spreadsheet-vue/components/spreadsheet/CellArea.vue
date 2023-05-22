@@ -7,7 +7,7 @@
     <div v-if="extensionAreaTip" class="spread-cell-area-extension-tip" :style="extensionAreaTip.style">
       {{ extensionAreaTip.value }}
     </div>
-    <div v-if="showExtendedArea" class="spread-cell-area-main-extended" :style="getCellAreaStyle(extendedArea)"></div>
+    <div v-if="extendedAreaStyle" class="spread-cell-area-main-extended" :style="extendedAreaStyle"></div>
     <div class="spread-cell-area-copy"></div>
   </div>
 </template>
@@ -71,6 +71,7 @@ export default defineComponent({
     const selectedCell: Ref<CellInfo> = ref(null);
     const extendedArea: Ref<CellArea> = ref(null);
     const showExtendedArea = ref(false);
+    const extendedAreaStyle = ref(null);
 
     const extensionAreaTip = computed(() =>
       getCellExtensionAreaTip(cellAreas.extension, extendedArea.value?.data.values)
@@ -117,6 +118,7 @@ export default defineComponent({
         cell: null,
       };
       cellAreas.setAreaCells(startCell, extendedArea.value.data.values);
+      extendedAreaStyle.value = getCellAreaStyle(extendedArea.value);
       cellAreas.extendMainArea();
       showExtendedArea.value = true;
       cellAreas.clearArea(cellAreas.extension);
@@ -133,6 +135,7 @@ export default defineComponent({
         return;
       }
       cellAreas.clearArea(cellAreas.main);
+      extendedAreaStyle.value = null;
       showExtendedArea.value = false;
     };
 
@@ -165,6 +168,7 @@ export default defineComponent({
       extensionAreaTip,
       extendedArea,
       showExtendedArea,
+      extendedAreaStyle,
     };
   },
 });
