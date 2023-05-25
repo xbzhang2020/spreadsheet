@@ -7,7 +7,7 @@
     <div v-if="extensionAreaTip" class="spread-cell-area-extension-tip" :style="extensionAreaTip.style">
       {{ extensionAreaTip.value }}
     </div>
-    <div v-if="extendedAreaStyle" class="spread-cell-area-main-extended" :style="extendedAreaStyle"></div>
+    <!-- <div v-if="extendedAreaStyle" class="spread-cell-area-main-extended" :style="extendedAreaStyle"></div> -->
     <div class="spread-cell-area-copy"></div>
   </div>
 </template>
