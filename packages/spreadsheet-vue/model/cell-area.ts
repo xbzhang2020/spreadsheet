@@ -116,7 +116,37 @@ export const setAreaCells = (table: TableInfo, startCell: CellInfo, source: any[
   return data;
 };
 
-const getMainAreaData = (table: TableInfo, startCell: CellInfo, endCell?: CellInfo) => {
+const calcMainArea = (startCell: CellInfo, endCell: CellInfo) => {
+  const area = initArea();
+  area.rect = getElementRect(startCell.cell);
+
+  if (!endCell) return area;
+
+  const { rect, drag } = area;
+  const endRect = getElementRect(endCell.cell);
+  drag.orientation = [];
+
+  if (endRect.left >= rect.left) {
+    rect.width = endRect.left - rect.left + endRect.width;
+    drag.orientation.push("right");
+  } else {
+    rect.width = rect.left - endRect.left + rect.width;
+    rect.left = endRect.left;
+    drag.orientation.push("left");
+  }
+
+  if (endRect.top >= rect.top) {
+    rect.height = endRect.top - rect.top + endRect.height;
+    drag.orientation.push("bottom");
+  } else {
+    rect.height = rect.top - endRect.top + rect.height;
+    rect.top = endRect.top;
+    drag.orientation.push("top");
+  }
+  return area;
+};
+
+const calcMainAreaData = (table: TableInfo, startCell: CellInfo, endCell?: CellInfo) => {
   if (!endCell) {
     endCell = startCell;
   }
@@ -153,34 +183,6 @@ const getMainAreaData = (table: TableInfo, startCell: CellInfo, endCell?: CellIn
   ];
 
   return getCellAreaDataByIndices(table, indices);
-};
-
-const setMainArea = (area: CellArea, startCell: CellInfo, endCell: CellInfo) => {
-  area.rect = getElementRect(startCell.cell);
-
-  if (!endCell) return;
-
-  const { rect, drag } = area;
-  const endRect = getElementRect(endCell.cell);
-  drag.orientation = [];
-
-  if (endRect.left >= rect.left) {
-    rect.width = endRect.left - rect.left + endRect.width;
-    drag.orientation.push("right");
-  } else {
-    rect.width = rect.left - endRect.left + rect.width;
-    rect.left = endRect.left;
-    drag.orientation.push("left");
-  }
-
-  if (endRect.top >= rect.top) {
-    rect.height = endRect.top - rect.top + endRect.height;
-    drag.orientation.push("bottom");
-  } else {
-    rect.height = rect.top - endRect.top + rect.height;
-    rect.top = endRect.top;
-    drag.orientation.push("top");
-  }
 };
 
 const setExtensionArea = (area: CellArea, mainArea: CellArea, endCell: CellInfo, table: TableInfo) => {
@@ -301,8 +303,10 @@ export class CellAreasStore {
   }
 
   setMainArea(startCell: CellInfo, endCell?: CellInfo) {
-    setMainArea(this.main, startCell, endCell);
-    this.main.data = getMainAreaData(this.table, startCell, endCell);
+    const { rect, drag } = calcMainArea(startCell, endCell);
+    this.main.rect = rect;
+    this.main.drag.orientation = drag.orientation;
+    this.main.data = calcMainAreaData(this.table, startCell, endCell);
   }
 
   setExtensionArea(endCell: CellInfo) {
