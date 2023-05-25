@@ -185,32 +185,58 @@ const calcMainAreaData = (table: TableInfo, startCell: CellInfo, endCell?: CellI
   return getCellAreaDataByIndices(table, indices);
 };
 
-const setExtensionArea = (area: CellArea, mainArea: CellArea, endCell: CellInfo, table: TableInfo) => {
-  const { rect: mainRect, data: mainData } = mainArea;
-  const endRect = getElementRect(endCell.cell);
-  const rect = { ...mainRect };
-  let lastOrientation = area.drag.orientation || [];
-  area.drag.orientation = [];
-
+const calcExtensionAreaData = (
+  table: TableInfo,
+  mainArea: CellArea,
+  endCell: CellInfo,
+  orientation: CellAreaDragOrientation[]
+) => {
   const { dataSource } = table;
   const index1 = dataSource.columns.findIndex(col => col.key === endCell.column.key);
   const index2 = dataSource.rows.findIndex(row => row === endCell.row);
+  const mainData = mainArea.data;
 
   let colStart = mainData.indices[0][1],
     colEnd = mainData.indices[1][1],
     rowStart = mainData.indices[0][0],
     rowEnd = mainData.indices[1][0];
 
+  if (orientation.includes("left")) {
+    colStart = index1;
+  } else if (orientation.includes("right")) {
+    colEnd = index1 + 1;
+  }
+
+  if (orientation.includes("top")) {
+    rowStart = index2;
+  } else {
+    rowEnd = index2 + 1;
+  }
+
+  const indices = [
+    [rowStart, colStart],
+    [rowEnd, colEnd],
+  ];
+
+  return getCellAreaDataByIndices(table, indices);
+};
+
+const calcExtensionArea = (mainArea: CellArea, endCell: CellInfo) => {
+  const area = initArea();
+  const { rect: mainRect } = mainArea;
+  const endRect = getElementRect(endCell.cell);
+  const rect = { ...mainRect };
+  let lastOrientation = area.drag.orientation || [];
+  area.drag.orientation = [];
+
   if (lastOrientation.length === 0 || lastOrientation.includes("left") || lastOrientation.includes("right")) {
     if (endRect.left < mainRect.left) {
       rect.width = mainRect.left - endRect.left + mainRect.width;
       rect.left = endRect.left;
       area.drag.orientation.push("left");
-      colStart = index1;
     } else if (endRect.left + endRect.width > mainRect.left + mainRect.width) {
       rect.width = endRect.left - mainRect.left + endRect.width;
       area.drag.orientation.push("right");
-      colEnd = index1 + 1;
     }
     lastOrientation = area.drag.orientation;
   }
@@ -220,24 +246,17 @@ const setExtensionArea = (area: CellArea, mainArea: CellArea, endCell: CellInfo,
       rect.height = mainRect.top - endRect.top + mainRect.height;
       rect.top = endRect.top;
       area.drag.orientation.push("top");
-      rowStart = index2;
     } else if (endRect.top + endRect.height > mainRect.top + mainRect.height) {
       rect.height = endRect.top - mainRect.top + endRect.height;
       area.drag.orientation.push("bottom");
-      rowEnd = index2 + 1;
     }
   }
 
-  const indices = [
-    [rowStart, colStart],
-    [rowEnd, colEnd],
-  ];
-
   area.rect = rect;
-  area.data.indices = indices;
+  return area;
 };
 
-const getExtendedArea = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
+const calcExtendedArea = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
   const area = initArea();
 
   const { rect: mainAreaRect, data: mainAreaData } = mainArea;
@@ -310,10 +329,10 @@ export class CellAreasStore {
   }
 
   setExtensionArea(endCell: CellInfo) {
-    setExtensionArea(this.extension, this.main, endCell, this.table);
-    const indices = this.extension.data.indices;
-    const data = getCellAreaDataByIndices(this.table, indices);
-    this.extension.data = data;
+    const { rect, drag } = calcExtensionArea(this.main, endCell);
+    this.extension.rect = rect;
+    this.extension.drag.orientation = drag.orientation;
+    this.extension.data = calcExtensionAreaData(this.table, this.main, endCell, drag.orientation);
   }
 
   setCopyArea() {
@@ -340,7 +359,7 @@ export class CellAreasStore {
   }
 
   getExtendedArea() {
-    return getExtendedArea(this.table, this.main, this.extension);
+    return calcExtendedArea(this.table, this.main, this.extension);
   }
 
   setAreaCells(startCell: CellInfo, source: any[][]) {
