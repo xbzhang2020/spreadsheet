@@ -337,7 +337,6 @@ export class CellAreasStore {
 
   setSelectCell(startCell: CellInfo) {
     this.selectCell = startCell;
-    this.extended = false;
   }
 
   getSelectCellStyle() {
@@ -347,6 +346,11 @@ export class CellAreasStore {
   }
 
   setMainArea(endCell?: CellInfo) {
+    if (!endCell || this.selectCell === endCell) {
+      this.extended = false;
+    } else {
+      this.extended = true;
+    }
     this.main.coord = calcMainAreaCoord(this.selectCell, endCell);
     this.main.data = calcMainAreaData(this.table, this.selectCell, endCell);
   }
@@ -376,7 +380,6 @@ export class CellAreasStore {
   extendMainArea() {
     this.main.coord = { ...this.extension.coord };
     this.main.data = { ...this.extension.data };
-    this.extended = true;
   }
 
   clearArea(area: CellArea) {
