@@ -117,6 +117,7 @@ export default defineComponent({
         column: extendedArea.value.data.columns[0],
         cell: null,
       };
+
       cellAreas.setAreaCells(startCell, extendedArea.value.data.values);
       extendedAreaStyle.value = getCellAreaStyle(extendedArea.value);
       cellAreas.extendMainArea();

@@ -9,10 +9,15 @@ declare interface CellAreas {
 }
 
 declare interface CellArea {
-  rect: CellAreaRect;
+  coord: CellAreaCoord;
   data: CellAreaData;
   drag: CellAreaDrag;
   setArea?: Function;
+}
+
+declare interface CellAreaCoord {
+  rect: CellAreaRect;
+  orientation: CellAreaOrientation[];
 }
 
 declare interface CellAreaRect {
@@ -32,9 +37,9 @@ declare interface CellAreaData {
 declare interface CellAreaDrag {
   mode: "clip" | "copy" | "default";
   dragging: boolean;
-  orientation: CellAreaDragOrientation[];
+  // orientation: CellAreaOrientation[];
 }
 
 declare type CellAreaDragMode = "row" | "column" | "cell";
 
-declare type CellAreaDragOrientation = "left" | "right" | "center" | "top" | "bottom";
+declare type CellAreaOrientation = "left" | "right" | "center" | "top" | "bottom";

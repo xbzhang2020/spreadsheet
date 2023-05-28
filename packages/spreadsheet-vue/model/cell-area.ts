@@ -12,11 +12,14 @@ const getElementRect = (element: HTMLElement) => {
 
 const initArea = (option: DeepPartial<CellArea> = {}) => {
   const res: CellArea = {
-    rect: {
-      left: 0,
-      top: 0,
-      width: 0,
-      height: 0,
+    coord: {
+      rect: {
+        left: 0,
+        top: 0,
+        width: 0,
+        height: 0,
+      },
+      orientation: [],
     },
     data: {
       rows: [],
@@ -27,7 +30,7 @@ const initArea = (option: DeepPartial<CellArea> = {}) => {
     drag: {
       mode: option.drag?.mode || null,
       dragging: false,
-      orientation: [],
+      // orientation: [],
     },
   };
   return res;
@@ -118,31 +121,35 @@ export const setAreaCells = (table: TableInfo, startCell: CellInfo, source: any[
 
 const calcMainArea = (startCell: CellInfo, endCell: CellInfo) => {
   const area = initArea();
-  area.rect = getElementRect(startCell.cell);
-
+  const rect = getElementRect(startCell.cell);
+  area.coord.rect = rect;
   if (!endCell) return area;
 
-  const { rect, drag } = area;
   const endRect = getElementRect(endCell.cell);
-  drag.orientation = [];
+  const orientation: CellAreaOrientation[] = [];
 
   if (endRect.left >= rect.left) {
     rect.width = endRect.left - rect.left + endRect.width;
-    drag.orientation.push("right");
+    orientation.push("right");
   } else {
     rect.width = rect.left - endRect.left + rect.width;
     rect.left = endRect.left;
-    drag.orientation.push("left");
+    orientation.push("left");
   }
 
   if (endRect.top >= rect.top) {
     rect.height = endRect.top - rect.top + endRect.height;
-    drag.orientation.push("bottom");
+    orientation.push("bottom");
   } else {
     rect.height = rect.top - endRect.top + rect.height;
     rect.top = endRect.top;
-    drag.orientation.push("top");
+    orientation.push("top");
   }
+  area.coord = {
+    rect,
+    orientation,
+  };
+
   return area;
 };
 
@@ -189,7 +196,7 @@ const calcExtensionAreaData = (
   table: TableInfo,
   mainArea: CellArea,
   endCell: CellInfo,
-  orientation: CellAreaDragOrientation[]
+  orientation: CellAreaOrientation[]
 ) => {
   const { dataSource } = table;
   const index1 = dataSource.columns.findIndex(col => col.key === endCell.column.key);
@@ -223,50 +230,57 @@ const calcExtensionAreaData = (
 
 const calcExtensionArea = (mainArea: CellArea, endCell: CellInfo) => {
   const area = initArea();
-  const { rect: mainRect } = mainArea;
+  // const { coord: mainRect } = mainArea;
+  const mainRect = mainArea.coord.rect;
   const endRect = getElementRect(endCell.cell);
   const rect = { ...mainRect };
-  let lastOrientation = area.drag.orientation || [];
-  area.drag.orientation = [];
+  let lastOrientation = area.coord.orientation || [];
+  const orientation: CellAreaOrientation[] = [];
 
   if (lastOrientation.length === 0 || lastOrientation.includes("left") || lastOrientation.includes("right")) {
     if (endRect.left < mainRect.left) {
       rect.width = mainRect.left - endRect.left + mainRect.width;
       rect.left = endRect.left;
-      area.drag.orientation.push("left");
+      orientation.push("left");
     } else if (endRect.left + endRect.width > mainRect.left + mainRect.width) {
       rect.width = endRect.left - mainRect.left + endRect.width;
-      area.drag.orientation.push("right");
+      orientation.push("right");
     }
-    lastOrientation = area.drag.orientation;
+    lastOrientation = orientation;
   }
 
   if (lastOrientation.length === 0 || lastOrientation.includes("top") || lastOrientation.includes("bottom")) {
     if (endRect.top < mainRect.top) {
       rect.height = mainRect.top - endRect.top + mainRect.height;
       rect.top = endRect.top;
-      area.drag.orientation.push("top");
+      orientation.push("top");
     } else if (endRect.top + endRect.height > mainRect.top + mainRect.height) {
       rect.height = endRect.top - mainRect.top + endRect.height;
-      area.drag.orientation.push("bottom");
+      orientation.push("bottom");
     }
   }
 
-  area.rect = rect;
+  area.coord = {
+    rect,
+    orientation,
+  };
   return area;
 };
 
-const calcExtendedArea = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
+const calcPureExtensionArea = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
   const area = initArea();
 
-  const { rect: mainAreaRect, data: mainAreaData } = mainArea;
-  const { rect: extensionAreaRect, data: extensionAreaData } = extensionArea;
+  const { data: mainAreaData } = mainArea;
+  const { data: extensionAreaData } = extensionArea;
 
-  const orientation = extensionArea.drag.orientation;
+  const orientation = extensionArea.coord.orientation;
   const getCellValue = table.getCellValue || getCellValueDefault;
   const values: any[] = [];
 
-  const { data, rect } = area;
+  const { data } = area;
+  const mainAreaRect = mainArea.coord.rect;
+  const extensionAreaRect = extensionArea.coord.rect;
+  const rect = area.coord.rect;
 
   if (orientation.includes("left") || orientation.includes("right")) {
     const destColumns = extensionAreaData.columns.filter(item => !mainAreaData.columns.includes(item));
@@ -308,8 +322,26 @@ const calcExtendedArea = (table: TableInfo, mainArea: CellArea, extensionArea: C
     rect.top = orientation.includes("bottom") ? mainAreaRect.top + mainAreaRect.height : extensionAreaRect.top;
     rect.height = extensionAreaRect.height - mainAreaRect.height;
   }
+
+  area.coord.rect = rect;
   return area;
 };
+
+// class CellMainAreaDao {
+//   state: CellArea;
+
+//   setArea(state: CellArea) {
+//     this.state = state;
+//   }
+
+//   getArea() {
+//     return this.state;
+//   }
+
+//   calcAreaRect = calcMainArea;
+
+//   calcAreaData = calcMainAreaData;
+// }
 
 export class CellAreasStore {
   table: TableInfo = null;
@@ -322,34 +354,38 @@ export class CellAreasStore {
   }
 
   setMainArea(startCell: CellInfo, endCell?: CellInfo) {
-    const { rect, drag } = calcMainArea(startCell, endCell);
-    this.main.rect = rect;
-    this.main.drag.orientation = drag.orientation;
+    const { coord } = calcMainArea(startCell, endCell);
+    this.main.coord = coord;
+    // this.main..orientation = drag.orientation;
     this.main.data = calcMainAreaData(this.table, startCell, endCell);
   }
 
   setExtensionArea(endCell: CellInfo) {
-    const { rect, drag } = calcExtensionArea(this.main, endCell);
-    this.extension.rect = rect;
-    this.extension.drag.orientation = drag.orientation;
-    this.extension.data = calcExtensionAreaData(this.table, this.main, endCell, drag.orientation);
+    const { coord } = calcExtensionArea(this.main, endCell);
+    this.extension.coord = coord;
+    // this.extension.drag.orientation = drag.orientation;
+    this.extension.data = calcExtensionAreaData(this.table, this.main, endCell, coord.orientation);
   }
 
   setCopyArea() {
-    this.copy.rect = { ...this.main.rect };
+    this.copy.coord = { ...this.main.coord };
   }
 
   extendMainArea() {
-    this.main.rect = { ...this.extension.rect };
+    this.main.coord = { ...this.extension.coord };
     this.main.data = { ...this.extension.data };
   }
 
   clearArea(area: CellArea) {
-    area.rect.left = 0;
-    area.rect.top = 0;
-    area.rect.width = 0;
-    area.rect.height = 0;
+    const rect: CellAreaRect = {
+      left: 0,
+      width: 0,
+      top: 0,
+      height: 0,
+    };
 
+    area.coord.rect = rect;
+    area.coord.orientation = [];
     area.data = {
       rows: [],
       columns: [],
@@ -359,7 +395,7 @@ export class CellAreasStore {
   }
 
   getExtendedArea() {
-    return calcExtendedArea(this.table, this.main, this.extension);
+    return calcPureExtensionArea(this.table, this.main, this.extension);
   }
 
   setAreaCells(startCell: CellInfo, source: any[][]) {
@@ -369,7 +405,7 @@ export class CellAreasStore {
 
 export const getCellAreaStyle = (area: CellArea) => {
   if (!area) return {};
-  const { left, top, width, height } = area.rect;
+  const { left, top, width, height } = area.coord.rect;
   return {
     left: left + "px",
     top: top + "px",
@@ -383,14 +419,16 @@ export const getCellExtensionAreaTip = (extensionArea: CellArea, values: any[][]
   if (!values?.length || !extensionArea.drag.dragging) return null;
 
   const last = values[values.length - 1];
+  const rect = extensionArea.coord.rect;
+  const orientation = extensionArea.coord.orientation;
   let left = 0;
-  const top = extensionArea.rect.top + extensionArea.rect.height + 5;
+  const top = rect.top + rect.height + 5;
   let value = null;
-  if (extensionArea.drag.orientation.includes("left")) {
-    left = extensionArea.rect.left;
+  if (orientation.includes("left")) {
+    left = rect.left;
     value = last[0];
   } else {
-    left = extensionArea.rect.left + extensionArea.rect.width + 5;
+    left = rect.left + rect.width + 5;
     value = last[last.length - 1];
   }
 
