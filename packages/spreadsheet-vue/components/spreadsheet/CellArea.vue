@@ -69,7 +69,7 @@ export default defineComponent({
     const mainAreaStyle = computed(() => cellAreas.getMainAreaStyle());
     const extensionAreaStyle = computed(() => cellAreas.getExtensionAreaStyle());
     const extended = computed(() => cellAreas.isExtended());
-    
+
     const pureExtensionAreaData: Ref<CellAreaData> = ref(null);
     const extensionAreaTip = computed(() =>
       getCellExtensionAreaTip(cellAreas.extension, pureExtensionAreaData.value?.values)
@@ -113,8 +113,7 @@ export default defineComponent({
 
       cellAreas.setAreaCells(startCell, pureExtensionAreaData.value.values);
       cellAreas.extendMainArea();
-
-      cellAreas.clearArea(cellAreas.extension);
+      cellAreas.clearExtensionArea();
     };
 
     const handleClick = () => {
@@ -128,12 +127,12 @@ export default defineComponent({
         return;
       }
       cellAreas.setSelectCell(null);
-      cellAreas.clearArea(cellAreas.main);
+      cellAreas.clearMainArea();
     };
 
     const handleDbClick = () => {
-      cellAreas.clearArea(cellAreas.main);
-      cellAreas.clearArea(cellAreas.extension);
+      cellAreas.clearMainArea();
+      cellAreas.clearExtensionArea();
     };
 
     onMounted(() => {

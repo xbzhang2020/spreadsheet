@@ -21,23 +21,35 @@ export const getAreaRectStyle = (rect: CellAreaRect) => {
   };
 };
 
+const initAreaRect = (): CellAreaRect => {
+  return {
+    left: 0,
+    top: 0,
+    width: 0,
+    height: 0,
+  };
+};
+
+const initAreaCoord = (): CellAreaCoord => {
+  return {
+    rect: initAreaRect(),
+    orientation: [],
+  };
+};
+
+const initAreaData = (): CellAreaData => {
+  return {
+    rows: [],
+    columns: [],
+    values: [],
+    indices: [],
+  };
+};
+
 const initArea = (option: DeepPartial<CellArea> = {}) => {
   const res: CellArea = {
-    coord: {
-      rect: {
-        left: 0,
-        top: 0,
-        width: 0,
-        height: 0,
-      },
-      orientation: [],
-    },
-    data: {
-      rows: [],
-      columns: [],
-      values: [],
-      indices: [],
-    },
+    coord: initAreaCoord(),
+    data: initAreaData(),
     drag: {
       mode: option.drag?.mode || null,
       dragging: false,
@@ -359,6 +371,11 @@ export class CellAreasStore {
     return getAreaRectStyle(this.main.coord.rect);
   }
 
+  clearMainArea() {
+    this.main.coord = initAreaCoord();
+    this.main.data = initAreaData();
+  }
+
   isExtended() {
     return this.extended;
   }
@@ -378,8 +395,14 @@ export class CellAreasStore {
   }
 
   extendMainArea() {
+    this.extended = true;
     this.main.coord = { ...this.extension.coord };
     this.main.data = { ...this.extension.data };
+  }
+
+  clearExtensionArea() {
+    this.extension.coord = initAreaCoord();
+    this.extension.data = initAreaData();
   }
 
   clearArea(area: CellArea) {
