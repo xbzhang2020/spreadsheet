@@ -51,30 +51,26 @@ export default defineComponent({
     const areaRef = ref(null);
 
     const isParentMounted = computed(() => props.tableInfo.isMounted);
-    const getCellAreaContainer = () => {
-      return areaRef.value;
-    };
+    const getCellAreaContainer = () => areaRef.value;
 
     useMount({
       isParentMounted: isParentMounted,
       getTableBodyConatiner: props.tableInfo.getTableBodyContainer,
-      getCellAreaContainer: getCellAreaContainer,
+      getCellAreaContainer,
     });
 
+    const currentCell = computed(() => props.tableInfo.mouseEnteredCell);
     const cellAreas = reactive(createCellAreas());
+    watchEffect(() => {
+      cellAreas.setTableInfo(props.tableInfo);
+    });
 
     const selectCellStyle = computed(() => cellAreas.getSelectCellStyle());
     const mainAreaStyle = computed(() => cellAreas.getMainAreaStyle());
     const extensionAreaStyle = computed(() => cellAreas.getExtensionAreaStyle());
     const extended = computed(() => cellAreas.isExtended());
-
-    watchEffect(() => {
-      cellAreas.setTableInfo(props.tableInfo);
-    });
-
-    const currentCell = computed(() => props.tableInfo.mouseEnteredCell);
+    
     const pureExtensionAreaData: Ref<CellAreaData> = ref(null);
-
     const extensionAreaTip = computed(() =>
       getCellExtensionAreaTip(cellAreas.extension, pureExtensionAreaData.value?.values)
     );
