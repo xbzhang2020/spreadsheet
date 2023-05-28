@@ -1,7 +1,7 @@
 <template>
   <div ref="areaRef" class="spread-cell-area">
     <div class="spread-cell-area-select" :style="selectCellStyle"></div>
-    <div class="spread-cell-area-main" :style="mainAreaStyle">
+    <div class="spread-cell-area-main" :class="[extended && 'spread-cell-area-main-extended']" :style="mainAreaStyle">
       <div class="spread-cell-area-main-btn" @mousedown.stop="handleDragBtnMousedown"></div>
     </div>
     <div class="spread-cell-area-extension" :style="extensionAreaStyle"></div>
@@ -66,6 +66,7 @@ export default defineComponent({
     const selectCellStyle = computed(() => cellAreas.getSelectCellStyle());
     const mainAreaStyle = computed(() => cellAreas.getMainAreaStyle());
     const extensionAreaStyle = computed(() => cellAreas.getExtensionAreaStyle());
+    const extended = computed(() => cellAreas.isExtended());
 
     watchEffect(() => {
       cellAreas.setTableInfo(props.tableInfo);
@@ -168,6 +169,7 @@ export default defineComponent({
       selectCellStyle,
       mainAreaStyle,
       extensionAreaStyle,
+      extended,
     };
   },
 });
@@ -182,7 +184,6 @@ export default defineComponent({
     pointer-events: none;
     z-index: 2;
     box-sizing: border-box;
-    background-color: #0a70f52e;
   }
   &-main-btn {
     width: 6px;
@@ -191,16 +192,12 @@ export default defineComponent({
     bottom: -1px;
     right: -1px;
     background-color: #0a70f5;
-    border-top-left-radius: 2px;
     pointer-events: auto;
     cursor: crosshair;
   }
-  // &-main-extended {
-  //   position: absolute;
-  //   background-color: #0a70f52e;
-  //   z-index: 1;
-  //   pointer-events: none;
-  // }
+  &-main-extended {
+    background-color: #0a70f52e;
+  }
   &-select {
     position: absolute;
     border: 2px solid #0a70f5;

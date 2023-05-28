@@ -342,6 +342,7 @@ export class CellAreasStore {
   main = createMainArea();
   extension = createExtensionArea();
   copy = createCopyArea();
+  extended: boolean = false;
 
   setTableInfo(table: TableInfo) {
     this.table = table;
@@ -349,6 +350,7 @@ export class CellAreasStore {
 
   setSelectCell(startCell: CellInfo) {
     this.selectCell = startCell;
+    this.extended = false;
   }
 
   getSelectCellStyle() {
@@ -364,6 +366,10 @@ export class CellAreasStore {
 
   getMainAreaStyle() {
     return getAreaRectStyle(this.main.coord.rect);
+  }
+
+  isExtended() {
+    return this.extended;
   }
 
   setExtensionArea(endCell: CellInfo) {
@@ -383,6 +389,7 @@ export class CellAreasStore {
   extendMainArea() {
     this.main.coord = { ...this.extension.coord };
     this.main.data = { ...this.extension.data };
+    this.extended = true;
   }
 
   clearArea(area: CellArea) {
