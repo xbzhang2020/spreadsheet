@@ -277,63 +277,50 @@ const calcExtensionAreaCoord = (mainArea: CellArea, endCell: CellInfo) => {
 };
 
 const calcPureExtensionAreaData = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
-  const area = initArea();
-
   const { data: mainAreaData } = mainArea;
   const { data: extensionAreaData } = extensionArea;
 
   const orientation = extensionArea.coord.orientation;
   const getCellValue = table.getCellValue || getCellValueDefault;
-  const values: any[] = [];
 
-  const { data } = area;
-  const mainAreaRect = mainArea.coord.rect;
-  const extensionAreaRect = extensionArea.coord.rect;
-  const rect = area.coord.rect;
+  const data: CellAreaData = {
+    rows: [],
+    columns: [],
+    values: [],
+    indices: [],
+  };
 
   if (orientation.includes("left") || orientation.includes("right")) {
     const destColumns = extensionAreaData.columns.filter(item => !mainAreaData.columns.includes(item));
     mainAreaData.rows.forEach(row => {
       const sourceValues = mainAreaData.columns.map(column => getCellValue(row, column));
       const destValues = getDestValues(sourceValues, destColumns.length, orientation.includes("left"));
-      values.push(destValues);
+      data.values.push(destValues);
     });
     data.rows = mainAreaData.rows;
     data.columns = destColumns;
-    data.values = values;
 
-    rect.left = orientation.includes("right") ? mainAreaRect.left + mainAreaRect.width : extensionAreaRect.left;
-    rect.width = extensionAreaRect.width - mainAreaRect.width;
-    rect.top = mainAreaRect.top;
-    rect.height = mainAreaRect.height;
-    return area.data;
+    return data;
   }
 
   if (orientation.includes("top") || orientation.includes("bottom")) {
     const destRows = extensionAreaData.rows.filter(item => !mainAreaData.rows.includes(item));
     destRows.forEach(() => {
-      values.push([]);
+      data.values.push([]);
     });
 
     mainAreaData.columns.forEach((column, colIndex) => {
       const sourceValues = mainAreaData.rows.map(row => getCellValue(row, column));
       const destValues = getDestValues(sourceValues, destRows.length, orientation.includes("top"));
       destValues.forEach((value, rowIndex) => {
-        values[rowIndex][colIndex] = value;
+        data.values[rowIndex][colIndex] = value;
       });
     });
     data.rows = destRows;
     data.columns = mainAreaData.columns;
-    data.values = values;
-
-    rect.left = mainAreaRect.left;
-    rect.width = mainAreaRect.width;
-    rect.top = orientation.includes("bottom") ? mainAreaRect.top + mainAreaRect.height : extensionAreaRect.top;
-    rect.height = extensionAreaRect.height - mainAreaRect.height;
   }
 
-  area.coord.rect = rect;
-  return area.data;
+  return data;
 };
 
 export class CellAreasStore {

@@ -72,16 +72,12 @@ export default defineComponent({
       cellAreas.setTableInfo(props.tableInfo);
     });
 
-    const currentCell: Ref<CellInfo> = ref(null);
+    const currentCell = computed(() => props.tableInfo.mouseEnteredCell);
     const pureExtensionAreaData: Ref<CellAreaData> = ref(null);
 
     const extensionAreaTip = computed(() =>
       getCellExtensionAreaTip(cellAreas.extension, pureExtensionAreaData.value?.values)
     );
-
-    watchEffect(() => {
-      currentCell.value = props.tableInfo.mouseEnteredCell;
-    });
 
     const handleMousedown = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
