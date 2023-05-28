@@ -15,13 +15,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, watchEffect, Ref, computed, ref, onMounted, onBeforeUnmount, reactive } from "vue";
-import {
-  createCellAreas,
-  getCellAreaStyle,
-  getCellExtensionAreaTip,
-  getElementRect,
-  getAreaRectStyle,
-} from "../../model/cell-area";
+import { createCellAreas, getCellExtensionAreaTip, getElementRect, getAreaRectStyle } from "../../model/cell-area";
 
 const useMount = (params: {
   isParentMounted: Ref<boolean>;
@@ -79,10 +73,7 @@ export default defineComponent({
     const pureExtensionAreaData: Ref<CellAreaData> = ref(null);
     const showExtendedArea = ref(false);
     const extendedAreaStyle = ref(null);
-    const selectedCellStyle = computed(() => {
-      if (!selectedCell.value) return {};
-      return getAreaRectStyle(getElementRect(selectedCell.value.cell));
-    });
+    const selectedCellStyle = ref(null);
 
     const extensionAreaTip = computed(() =>
       getCellExtensionAreaTip(cellAreas.extension, pureExtensionAreaData.value?.values)
@@ -101,7 +92,8 @@ export default defineComponent({
       cellAreas.main.drag.dragging = true;
       selectedCell.value = currentCell.value;
       cellAreas.setMainArea(selectedCell.value);
-      extendedAreaStyle.value = null
+      extendedAreaStyle.value = null;
+      selectedCellStyle.value = getAreaRectStyle(getElementRect(selectedCell.value.cell));
     };
 
     const handleDragBtnMousedown = () => {
@@ -151,6 +143,7 @@ export default defineComponent({
       cellAreas.clearArea(cellAreas.main);
       extendedAreaStyle.value = null;
       showExtendedArea.value = false;
+      selectedCellStyle.value = false;
     };
 
     const handleDbClick = () => {
@@ -177,7 +170,6 @@ export default defineComponent({
     return {
       areaRef,
       cellAreas,
-      getCellAreaStyle,
       handleDragBtnMousedown,
       extensionAreaTip,
       pureExtensionAreaData,
