@@ -338,7 +338,7 @@ const calcPureExtensionAreaData = (table: TableInfo, mainArea: CellArea, extensi
 
 export class CellAreasStore {
   table: TableInfo = null;
-  selectCell: CellInfo;
+  selectCell: CellInfo = null;
   main = createMainArea();
   extension = createExtensionArea();
   copy = createCopyArea();
@@ -351,15 +351,29 @@ export class CellAreasStore {
     this.selectCell = startCell;
   }
 
-  setMainArea(startCell: CellInfo, endCell?: CellInfo) {
-    this.main.coord = calcMainAreaCoord(startCell, endCell);
-    this.main.data = calcMainAreaData(this.table, startCell, endCell);
+  getSelectCellStyle() {
+    if (!this.selectCell?.cell) return {};
+    const rect = getElementRect(this.selectCell.cell);
+    return getAreaRectStyle(rect);
+  }
+
+  setMainArea(endCell?: CellInfo) {
+    this.main.coord = calcMainAreaCoord(this.selectCell, endCell);
+    this.main.data = calcMainAreaData(this.table, this.selectCell, endCell);
+  }
+
+  getMainAreaStyle() {
+    return getAreaRectStyle(this.main.coord.rect);
   }
 
   setExtensionArea(endCell: CellInfo) {
     const coord = calcExtensionAreaCoord(this.main, endCell);
     this.extension.coord = coord;
     this.extension.data = calcExtensionAreaData(this.table, this.main, endCell, coord.orientation);
+  }
+
+  getExtensionAreaStyle() {
+    return getAreaRectStyle(this.extension.coord.rect);
   }
 
   setCopyArea() {
