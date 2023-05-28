@@ -119,14 +119,18 @@ export const setAreaCells = (table: TableInfo, startCell: CellInfo, source: any[
   return data;
 };
 
-const calcMainArea = (startCell: CellInfo, endCell: CellInfo) => {
-  const area = initArea();
+const calcMainAreaCoord = (startCell: CellInfo, endCell: CellInfo) => {
   const rect = getElementRect(startCell.cell);
-  area.coord.rect = rect;
-  if (!endCell) return area;
+  const orientation: CellAreaOrientation[] = [];
+
+  const coord: CellAreaCoord = {
+    rect,
+    orientation,
+  };
+
+  if (!endCell) return coord;
 
   const endRect = getElementRect(endCell.cell);
-  const orientation: CellAreaOrientation[] = [];
 
   if (endRect.left >= rect.left) {
     rect.width = endRect.left - rect.left + endRect.width;
@@ -145,12 +149,8 @@ const calcMainArea = (startCell: CellInfo, endCell: CellInfo) => {
     rect.top = endRect.top;
     orientation.push("top");
   }
-  area.coord = {
-    rect,
-    orientation,
-  };
 
-  return area;
+  return coord;
 };
 
 const calcMainAreaData = (table: TableInfo, startCell: CellInfo, endCell?: CellInfo) => {
@@ -338,7 +338,7 @@ const calcPureExtensionArea = (table: TableInfo, mainArea: CellArea, extensionAr
 //     return this.state;
 //   }
 
-//   calcAreaRect = calcMainArea;
+//   calcAreaRect = calcMainAreaCoord;
 
 //   calcAreaData = calcMainAreaData;
 // }
@@ -354,9 +354,7 @@ export class CellAreasStore {
   }
 
   setMainArea(startCell: CellInfo, endCell?: CellInfo) {
-    const { coord } = calcMainArea(startCell, endCell);
-    this.main.coord = coord;
-    // this.main..orientation = drag.orientation;
+    this.main.coord = calcMainAreaCoord(startCell, endCell);
     this.main.data = calcMainAreaData(this.table, startCell, endCell);
   }
 

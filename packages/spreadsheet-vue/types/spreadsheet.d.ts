@@ -37,7 +37,6 @@ declare interface CellAreaData {
 declare interface CellAreaDrag {
   mode: "clip" | "copy" | "default";
   dragging: boolean;
-  // orientation: CellAreaOrientation[];
 }
 
 declare type CellAreaDragMode = "row" | "column" | "cell";
