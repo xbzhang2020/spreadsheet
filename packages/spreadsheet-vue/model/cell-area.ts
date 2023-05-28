@@ -228,7 +228,7 @@ const calcExtensionAreaData = (
   return getCellAreaDataByIndices(table, indices);
 };
 
-const calcExtensionAreCoord = (mainArea: CellArea, endCell: CellInfo) => {
+const calcExtensionAreaCoord = (mainArea: CellArea, endCell: CellInfo) => {
   const mainRect = mainArea.coord.rect;
   const rect = { ...mainRect };
   const orientation: CellAreaOrientation[] = [];
@@ -240,7 +240,6 @@ const calcExtensionAreCoord = (mainArea: CellArea, endCell: CellInfo) => {
 
   const endRect = getElementRect(endCell.cell);
   let lastOrientation = orientation || [];
-
   if (lastOrientation.length === 0 || lastOrientation.includes("left") || lastOrientation.includes("right")) {
     if (endRect.left < mainRect.left) {
       rect.width = mainRect.left - endRect.left + mainRect.width;
@@ -327,22 +326,6 @@ const calcPureExtensionArea = (table: TableInfo, mainArea: CellArea, extensionAr
   return area;
 };
 
-// class CellMainAreaDao {
-//   state: CellArea;
-
-//   setArea(state: CellArea) {
-//     this.state = state;
-//   }
-
-//   getArea() {
-//     return this.state;
-//   }
-
-//   calcAreaRect = calcMainAreaCoord;
-
-//   calcAreaData = calcMainAreaData;
-// }
-
 export class CellAreasStore {
   table: TableInfo = null;
   main = createMainArea();
@@ -359,8 +342,9 @@ export class CellAreasStore {
   }
 
   setExtensionArea(endCell: CellInfo) {
-    this.extension.coord = calcExtensionAreCoord(this.main, endCell);
-    this.extension.data = calcExtensionAreaData(this.table, this.main, endCell, this.extension.coord.orientation);
+    const coord = calcExtensionAreaCoord(this.main, endCell);
+    this.extension.coord = coord;
+    this.extension.data = calcExtensionAreaData(this.table, this.main, endCell, coord.orientation);
   }
 
   setCopyArea() {
@@ -390,7 +374,7 @@ export class CellAreasStore {
     };
   }
 
-  getExtendedArea() {
+  getPureExtensionArea() {
     return calcPureExtensionArea(this.table, this.main, this.extension);
   }
 

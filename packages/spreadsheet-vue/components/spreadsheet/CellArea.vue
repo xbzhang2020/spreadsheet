@@ -104,7 +104,7 @@ export default defineComponent({
       }
       if (cellAreas.extension.drag.dragging) {
         cellAreas.setExtensionArea(currentCell.value);
-        extendedArea.value = cellAreas.getExtendedArea();
+        extendedArea.value = cellAreas.getPureExtensionArea();
         return;
       }
     };
