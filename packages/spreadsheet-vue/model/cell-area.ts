@@ -228,14 +228,18 @@ const calcExtensionAreaData = (
   return getCellAreaDataByIndices(table, indices);
 };
 
-const calcExtensionArea = (mainArea: CellArea, endCell: CellInfo) => {
-  const area = initArea();
-  // const { coord: mainRect } = mainArea;
+const calcExtensionAreCoord = (mainArea: CellArea, endCell: CellInfo) => {
   const mainRect = mainArea.coord.rect;
-  const endRect = getElementRect(endCell.cell);
   const rect = { ...mainRect };
-  let lastOrientation = area.coord.orientation || [];
   const orientation: CellAreaOrientation[] = [];
+
+  const coord = {
+    rect,
+    orientation,
+  };
+
+  const endRect = getElementRect(endCell.cell);
+  let lastOrientation = orientation || [];
 
   if (lastOrientation.length === 0 || lastOrientation.includes("left") || lastOrientation.includes("right")) {
     if (endRect.left < mainRect.left) {
@@ -260,11 +264,7 @@ const calcExtensionArea = (mainArea: CellArea, endCell: CellInfo) => {
     }
   }
 
-  area.coord = {
-    rect,
-    orientation,
-  };
-  return area;
+  return coord;
 };
 
 const calcPureExtensionArea = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
@@ -359,10 +359,8 @@ export class CellAreasStore {
   }
 
   setExtensionArea(endCell: CellInfo) {
-    const { coord } = calcExtensionArea(this.main, endCell);
-    this.extension.coord = coord;
-    // this.extension.drag.orientation = drag.orientation;
-    this.extension.data = calcExtensionAreaData(this.table, this.main, endCell, coord.orientation);
+    this.extension.coord = calcExtensionAreCoord(this.main, endCell);
+    this.extension.data = calcExtensionAreaData(this.table, this.main, endCell, this.extension.coord.orientation);
   }
 
   setCopyArea() {
