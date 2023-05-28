@@ -346,6 +346,10 @@ export class CellAreasStore {
     this.table = table;
   }
 
+  setSelectArea(startCell: CellInfo) {
+    
+  }
+
   setMainArea(startCell: CellInfo, endCell?: CellInfo) {
     this.main.coord = calcMainAreaCoord(startCell, endCell);
     this.main.data = calcMainAreaData(this.table, startCell, endCell);

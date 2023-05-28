@@ -1,5 +1,6 @@
 <template>
   <div ref="areaRef" class="spread-cell-area">
+    <div class="spread-cell-area-select" :style="selectedCellStyle"></div>
     <div class="spread-cell-area-main" :style="getAreaRectStyle(cellAreas.main.coord.rect)">
       <div class="spread-cell-area-main-btn" @mousedown.stop="handleDragBtnMousedown"></div>
     </div>
@@ -9,7 +10,6 @@
     </div>
     <div v-if="extendedAreaStyle" class="spread-cell-area-main-extended" :style="extendedAreaStyle"></div>
     <div class="spread-cell-area-copy"></div>
-    <div class="spread-cell-area-selected" :style="selectedCellStyle"></div>
   </div>
 </template>
 
@@ -209,7 +209,7 @@ export default defineComponent({
     z-index: 1;
     pointer-events: none;
   }
-  &-selected {
+  &-select {
     position: absolute;
     border: 2px solid #0a70f5;
     z-index: 1;

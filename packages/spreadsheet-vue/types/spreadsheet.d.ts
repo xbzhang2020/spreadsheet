@@ -3,6 +3,7 @@ declare type DeepPartial<T> = {
 };
 
 declare interface CellAreas {
+  select: CellArea;
   main: CellArea;
   extension: CellArea;
   copy?: CellArea;
