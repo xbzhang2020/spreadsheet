@@ -338,6 +338,7 @@ const calcPureExtensionAreaData = (table: TableInfo, mainArea: CellArea, extensi
 
 export class CellAreasStore {
   table: TableInfo = null;
+  selectCell: CellInfo;
   main = createMainArea();
   extension = createExtensionArea();
   copy = createCopyArea();
@@ -346,8 +347,8 @@ export class CellAreasStore {
     this.table = table;
   }
 
-  setSelectArea(startCell: CellInfo) {
-    
+  setSelectCell(startCell: CellInfo) {
+    this.selectCell = startCell;
   }
 
   setMainArea(startCell: CellInfo, endCell?: CellInfo) {

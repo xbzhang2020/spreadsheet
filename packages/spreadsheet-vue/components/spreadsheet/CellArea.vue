@@ -91,6 +91,7 @@ export default defineComponent({
       }
       cellAreas.main.drag.dragging = true;
       selectedCell.value = currentCell.value;
+      cellAreas.setSelectCell(currentCell.value);
       cellAreas.setMainArea(selectedCell.value);
       extendedAreaStyle.value = null;
       selectedCellStyle.value = getAreaRectStyle(getElementRect(selectedCell.value.cell));
