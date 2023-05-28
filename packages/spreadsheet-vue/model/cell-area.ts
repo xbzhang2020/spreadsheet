@@ -41,7 +41,6 @@ const initArea = (option: DeepPartial<CellArea> = {}) => {
     drag: {
       mode: option.drag?.mode || null,
       dragging: false,
-      // orientation: [],
     },
   };
   return res;
@@ -277,7 +276,7 @@ const calcExtensionAreaCoord = (mainArea: CellArea, endCell: CellInfo) => {
   return coord;
 };
 
-const calcPureExtensionArea = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
+const calcPureExtensionAreaData = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
   const area = initArea();
 
   const { data: mainAreaData } = mainArea;
@@ -307,7 +306,7 @@ const calcPureExtensionArea = (table: TableInfo, mainArea: CellArea, extensionAr
     rect.width = extensionAreaRect.width - mainAreaRect.width;
     rect.top = mainAreaRect.top;
     rect.height = mainAreaRect.height;
-    return area;
+    return area.data;
   }
 
   if (orientation.includes("top") || orientation.includes("bottom")) {
@@ -334,7 +333,7 @@ const calcPureExtensionArea = (table: TableInfo, mainArea: CellArea, extensionAr
   }
 
   area.coord.rect = rect;
-  return area;
+  return area.data;
 };
 
 export class CellAreasStore {
@@ -385,8 +384,8 @@ export class CellAreasStore {
     };
   }
 
-  getPureExtensionArea() {
-    return calcPureExtensionArea(this.table, this.main, this.extension);
+  getPureExtensionAreaData() {
+    return calcPureExtensionAreaData(this.table, this.main, this.extension);
   }
 
   setAreaCells(startCell: CellInfo, source: any[][]) {

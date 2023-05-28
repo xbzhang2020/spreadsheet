@@ -1,13 +1,13 @@
 <template>
   <div ref="areaRef" class="spread-cell-area">
-    <div class="spread-cell-area-main" :style="getCellAreaStyle(cellAreas.main)">
+    <div class="spread-cell-area-main" :style="getAreaRectStyle(cellAreas.main.coord.rect)">
       <div class="spread-cell-area-main-btn" @mousedown.stop="handleDragBtnMousedown"></div>
     </div>
-    <div class="spread-cell-area-extension" :style="getCellAreaStyle(cellAreas.extension)"></div>
+    <div class="spread-cell-area-extension" :style="getAreaRectStyle(cellAreas.extension.coord.rect)"></div>
     <div v-if="extensionAreaTip" class="spread-cell-area-extension-tip" :style="extensionAreaTip.style">
       {{ extensionAreaTip.value }}
     </div>
-    <!-- <div v-if="extendedAreaStyle" class="spread-cell-area-main-extended" :style="extendedAreaStyle"></div> -->
+    <div v-if="extendedAreaStyle" class="spread-cell-area-main-extended" :style="extendedAreaStyle"></div>
     <div class="spread-cell-area-copy"></div>
     <div class="spread-cell-area-selected" :style="selectedCellStyle"></div>
   </div>
@@ -76,7 +76,7 @@ export default defineComponent({
 
     const currentCell: Ref<CellInfo> = ref(null);
     const selectedCell: Ref<CellInfo> = ref(null);
-    const extendedArea: Ref<CellArea> = ref(null);
+    const pureExtensionAreaData: Ref<CellAreaData> = ref(null);
     const showExtendedArea = ref(false);
     const extendedAreaStyle = ref(null);
     const selectedCellStyle = computed(() => {
@@ -85,7 +85,7 @@ export default defineComponent({
     });
 
     const extensionAreaTip = computed(() =>
-      getCellExtensionAreaTip(cellAreas.extension, extendedArea.value?.data.values)
+      getCellExtensionAreaTip(cellAreas.extension, pureExtensionAreaData.value?.values)
     );
 
     watchEffect(() => {
@@ -101,6 +101,7 @@ export default defineComponent({
       cellAreas.main.drag.dragging = true;
       selectedCell.value = currentCell.value;
       cellAreas.setMainArea(selectedCell.value);
+      extendedAreaStyle.value = null
     };
 
     const handleDragBtnMousedown = () => {
@@ -115,7 +116,7 @@ export default defineComponent({
       }
       if (cellAreas.extension.drag.dragging) {
         cellAreas.setExtensionArea(currentCell.value);
-        extendedArea.value = cellAreas.getPureExtensionArea();
+        pureExtensionAreaData.value = cellAreas.getPureExtensionAreaData();
         return;
       }
     };
@@ -124,15 +125,16 @@ export default defineComponent({
       if (!cellAreas.extension.drag.dragging) return;
 
       const startCell: CellInfo = {
-        row: extendedArea.value.data.rows[0],
-        column: extendedArea.value.data.columns[0],
+        row: pureExtensionAreaData.value.rows[0],
+        column: pureExtensionAreaData.value.columns[0],
         cell: null,
       };
 
-      cellAreas.setAreaCells(startCell, extendedArea.value.data.values);
-      extendedAreaStyle.value = getCellAreaStyle(extendedArea.value);
+      cellAreas.setAreaCells(startCell, pureExtensionAreaData.value.values);
       cellAreas.extendMainArea();
       showExtendedArea.value = true;
+      extendedAreaStyle.value = getAreaRectStyle(cellAreas.main.coord.rect);
+
       cellAreas.clearArea(cellAreas.extension);
     };
 
@@ -178,10 +180,11 @@ export default defineComponent({
       getCellAreaStyle,
       handleDragBtnMousedown,
       extensionAreaTip,
-      extendedArea,
+      pureExtensionAreaData,
       showExtendedArea,
       extendedAreaStyle,
       selectedCellStyle,
+      getAreaRectStyle,
     };
   },
 });
