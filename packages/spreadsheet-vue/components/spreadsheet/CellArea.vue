@@ -9,12 +9,19 @@
     </div>
     <!-- <div v-if="extendedAreaStyle" class="spread-cell-area-main-extended" :style="extendedAreaStyle"></div> -->
     <div class="spread-cell-area-copy"></div>
+    <div class="spread-cell-area-selected" :style="selectedCellStyle"></div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType, watchEffect, Ref, computed, ref, onMounted, onBeforeUnmount, reactive } from "vue";
-import { createCellAreas, getCellAreaStyle, getCellExtensionAreaTip } from "../../model/cell-area";
+import {
+  createCellAreas,
+  getCellAreaStyle,
+  getCellExtensionAreaTip,
+  getElementRect,
+  getAreaRectStyle,
+} from "../../model/cell-area";
 
 const useMount = (params: {
   isParentMounted: Ref<boolean>;
@@ -72,6 +79,10 @@ export default defineComponent({
     const extendedArea: Ref<CellArea> = ref(null);
     const showExtendedArea = ref(false);
     const extendedAreaStyle = ref(null);
+    const selectedCellStyle = computed(() => {
+      if (!selectedCell.value) return {};
+      return getAreaRectStyle(getElementRect(selectedCell.value.cell));
+    });
 
     const extensionAreaTip = computed(() =>
       getCellExtensionAreaTip(cellAreas.extension, extendedArea.value?.data.values)
@@ -170,6 +181,7 @@ export default defineComponent({
       extendedArea,
       showExtendedArea,
       extendedAreaStyle,
+      selectedCellStyle,
     };
   },
 });
@@ -182,14 +194,15 @@ export default defineComponent({
     border: 1px solid #0a70f5;
     user-select: none;
     pointer-events: none;
-    z-index: 1;
+    z-index: 2;
+    box-sizing: border-box;
   }
   &-main-btn {
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
     position: absolute;
-    bottom: 0;
-    right: 0;
+    bottom: -1px;
+    right: -1px;
     background-color: #0a70f5;
     border-top-left-radius: 2px;
     pointer-events: auto;
@@ -199,12 +212,20 @@ export default defineComponent({
     position: absolute;
     background-color: #0a70f52e;
     z-index: 1;
+    pointer-events: none;
+  }
+  &-selected {
+    position: absolute;
+    border: 2px solid #0a70f5;
+    z-index: 1;
+    box-sizing: border-box;
   }
   &-extension {
     position: absolute;
     border: 1px dashed #0a70f5;
     pointer-events: none;
     z-index: 1;
+    box-sizing: border-box;
   }
   &-extension-tip {
     position: absolute;

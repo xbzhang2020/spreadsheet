@@ -1,6 +1,6 @@
 import { getDestValues } from "../utils/process";
 
-const getElementRect = (element: HTMLElement) => {
+export const getElementRect = (element: HTMLElement) => {
   const pos: CellAreaRect = {
     left: element.offsetLeft,
     top: element.offsetTop,
@@ -8,6 +8,17 @@ const getElementRect = (element: HTMLElement) => {
     height: element.offsetHeight,
   };
   return pos;
+};
+
+export const getAreaRectStyle = (rect: CellAreaRect) => {
+  const { left, width, top, height } = rect;
+  return {
+    left: left + "px",
+    top: top + "px",
+    width: width + "px",
+    height: height + "px",
+    display: width || height ? "block" : "none",
+  };
 };
 
 const initArea = (option: DeepPartial<CellArea> = {}) => {
