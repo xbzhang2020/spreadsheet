@@ -21,14 +21,6 @@ import { getElTableBodyContainer } from "../../utils/adapter";
 import { getTableDataSource } from "../../utils/mock";
 import { useGetMouseEnteredCell } from "../hooks/cell";
 
-const container = ref(null);
-
-const getTableBodyContainer = () => {
-  return getElTableBodyContainer(container.value);
-};
-
-const isMounted = useMounted();
-
 const dataSource = computed<TableDataSource>(() => {
   const { rows, columns } = getTableDataSource(6, 8);
   return {
@@ -37,8 +29,10 @@ const dataSource = computed<TableDataSource>(() => {
   };
 });
 
+const container = ref(null);
 const [mouseEnteredCell, mouseEnteredCellListener] = useGetMouseEnteredCell();
-
+const getTableBodyContainer = () => getElTableBodyContainer(container.value);
+const isMounted = useMounted();
 const tableInfo = computed<TableInfo>(() => ({
   dataSource: dataSource.value,
   getTableBodyContainer,

@@ -1,6 +1,13 @@
 <template>
-  <div>
-    <el-table :data="tableData" style="width: 100%; margin-bottom: 20px" row-key="id" border default-expand-all>
+  <div ref="container">
+    <el-table
+      :data="tableData"
+      style="width: 100%; margin-bottom: 20px"
+      row-key="id"
+      border
+      default-expand-all
+      @cell-mouse-enter="mouseEnteredCellListener"
+    >
       <el-table-column prop="date" label="Date" sortable />
       <el-table-column prop="name" label="Name" sortable />
       <el-table-column prop="address" label="Address" sortable />
@@ -22,6 +29,11 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { ref, computed } from "vue";
+import { useGetMouseEnteredCell } from "../hooks/cell";
+import { getElTableBodyContainer } from "../../utils/adapter";
+import { useMounted } from "@vueuse/core";
+
 interface User {
   id: number;
   date: string;
@@ -118,4 +130,33 @@ const tableData1: User[] = [
     address: "No. 189, Grove St, Los Angeles",
   },
 ];
+
+const columns = [
+  {
+    key: "date",
+    title: "Date",
+  },
+  {
+    key: "name",
+    title: "Name",
+  },
+  {
+    key: "address",
+    title: "Address",
+  },
+];
+
+const container = ref(null);
+const [mouseEnteredCell, mouseEnteredCellListener] = useGetMouseEnteredCell();
+const getTableBodyContainer = () => getElTableBodyContainer(container.value);
+const isMounted = useMounted();
+const tableInfo = computed(() => ({
+  dataSource: {
+    rows: tableData,
+    columns: columns,
+  },
+  getTableBodyContainer,
+  mouseEnteredCell: mouseEnteredCell.value,
+  isMounted: isMounted.value,
+}));
 </script>
