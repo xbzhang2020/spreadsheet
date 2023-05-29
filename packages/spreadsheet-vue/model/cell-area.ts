@@ -88,12 +88,12 @@ const getCellAreaIndcies = (index1: number, index2: number) => {
   return [index1, index2];
 };
 
-const getCellValueDefault = (row: BaseObject, column: ColumnInfo) => row[column.key];
-const setCellValueDafault = (row: BaseObject, column: ColumnInfo, value: any) => {
+const getCellValueDefault = (row: BaseObject, column: ColumnOption) => row[column.key];
+const setCellValueDafault = (row: BaseObject, column: ColumnOption, value: any) => {
   row[column.key] = value;
 };
 
-const getCellAreaDataByIndices = (table: TableInfo, indices: CellAreaData["indices"]) => {
+const getCellAreaDataByIndices = (table: TableOption, indices: CellAreaData["indices"]) => {
   const data: CellAreaData = {
     rows: [],
     columns: [],
@@ -112,7 +112,7 @@ const getCellAreaDataByIndices = (table: TableInfo, indices: CellAreaData["indic
   return data;
 };
 
-export const setAreaCells = (table: TableInfo, startCell: CellInfo, source: any[][]) => {
+export const setAreaCells = (table: TableOption, startCell: CellOption, source: any[][]) => {
   if (!source.length || !source[0]?.length) return;
   const setCellValue = table.setCellValue || setCellValueDafault;
   const { dataSource } = table;
@@ -141,7 +141,7 @@ export const setAreaCells = (table: TableInfo, startCell: CellInfo, source: any[
   return data;
 };
 
-const calcMainAreaCoord = (startCell: CellInfo, endCell: CellInfo) => {
+const calcMainAreaCoord = (startCell: CellOption, endCell: CellOption) => {
   const rect = getElementRect(startCell.cell);
   const orientation: CellAreaOrientation[] = [];
 
@@ -175,7 +175,7 @@ const calcMainAreaCoord = (startCell: CellInfo, endCell: CellInfo) => {
   return coord;
 };
 
-const calcMainAreaData = (table: TableInfo, startCell: CellInfo, endCell?: CellInfo) => {
+const calcMainAreaData = (table: TableOption, startCell: CellOption, endCell?: CellOption) => {
   if (!endCell) {
     endCell = startCell;
   }
@@ -215,9 +215,9 @@ const calcMainAreaData = (table: TableInfo, startCell: CellInfo, endCell?: CellI
 };
 
 const calcExtensionAreaData = (
-  table: TableInfo,
+  table: TableOption,
   mainArea: CellArea,
-  endCell: CellInfo,
+  endCell: CellOption,
   orientation: CellAreaOrientation[]
 ) => {
   const { dataSource } = table;
@@ -250,7 +250,7 @@ const calcExtensionAreaData = (
   return getCellAreaDataByIndices(table, indices);
 };
 
-const calcExtensionAreaCoord = (mainArea: CellArea, endCell: CellInfo) => {
+const calcExtensionAreaCoord = (mainArea: CellArea, endCell: CellOption) => {
   const mainRect = mainArea.coord.rect;
   const rect = { ...mainRect };
   const orientation: CellAreaOrientation[] = [];
@@ -288,7 +288,7 @@ const calcExtensionAreaCoord = (mainArea: CellArea, endCell: CellInfo) => {
   return coord;
 };
 
-const calcPureExtensionAreaData = (table: TableInfo, mainArea: CellArea, extensionArea: CellArea) => {
+const calcPureExtensionAreaData = (table: TableOption, mainArea: CellArea, extensionArea: CellArea) => {
   const { data: mainAreaData } = mainArea;
   const { data: extensionAreaData } = extensionArea;
 
@@ -336,18 +336,18 @@ const calcPureExtensionAreaData = (table: TableInfo, mainArea: CellArea, extensi
 };
 
 export class CellAreasStore {
-  table: TableInfo = null;
-  selectCell: CellInfo = null;
+  table: TableOption = null;
+  selectCell: CellOption = null;
   main = createMainArea();
   extension = createExtensionArea();
   copy = createCopyArea();
   extended: boolean = false;
 
-  setTableInfo(table: TableInfo) {
+  setTableInfo(table: TableOption) {
     this.table = table;
   }
 
-  setSelectCell(startCell: CellInfo) {
+  setSelectCell(startCell: CellOption) {
     this.selectCell = startCell;
   }
 
@@ -357,7 +357,7 @@ export class CellAreasStore {
     return getAreaRectStyle(rect);
   }
 
-  setMainArea(endCell?: CellInfo) {
+  setMainArea(endCell?: CellOption) {
     if (!endCell || this.selectCell === endCell) {
       this.extended = false;
     } else {
@@ -380,7 +380,7 @@ export class CellAreasStore {
     return this.extended;
   }
 
-  setExtensionArea(endCell: CellInfo) {
+  setExtensionArea(endCell: CellOption) {
     const coord = calcExtensionAreaCoord(this.main, endCell);
     this.extension.coord = coord;
     this.extension.data = calcExtensionAreaData(this.table, this.main, endCell, coord.orientation);
@@ -427,7 +427,7 @@ export class CellAreasStore {
     return calcPureExtensionAreaData(this.table, this.main, this.extension);
   }
 
-  setAreaCells(startCell: CellInfo, source: any[][]) {
+  setAreaCells(startCell: CellOption, source: any[][]) {
     return setAreaCells(this.table, startCell, source);
   }
 }

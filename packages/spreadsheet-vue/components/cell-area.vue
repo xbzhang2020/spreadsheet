@@ -42,27 +42,27 @@ const useMount = (params: {
 export default defineComponent({
   name: "CellArea",
   props: {
-    tableInfo: {
+    tableOption: {
       required: true,
-      type: Object as PropType<TableInfo>,
+      type: Object as PropType<TableOption>,
     },
   },
   setup(props) {
     const areaRef = ref(null);
 
-    const isParentMounted = computed(() => props.tableInfo.isMounted);
+    const isParentMounted = computed(() => props.tableOption.isMounted);
     const getCellAreaContainer = () => areaRef.value;
 
     useMount({
       isParentMounted: isParentMounted,
-      getTableBodyConatiner: props.tableInfo.getTableBodyContainer,
+      getTableBodyConatiner: props.tableOption.getTableBodyContainer,
       getCellAreaContainer,
     });
 
-    const currentCell = computed(() => props.tableInfo.mouseEnteredCell);
+    const currentCell = computed(() => props.tableOption.mouseEnteredCell);
     const cellAreas = reactive(createCellAreas());
     watchEffect(() => {
-      cellAreas.setTableInfo(props.tableInfo);
+      cellAreas.setTableInfo(props.tableOption);
     });
 
     const selectCellStyle = computed(() => cellAreas.getSelectCellStyle());
@@ -104,7 +104,7 @@ export default defineComponent({
     const handleMouseup = () => {
       if (!cellAreas.extension.drag.dragging) return;
 
-      const startCell: CellInfo = {
+      const startCell: CellOption = {
         row: pureExtensionAreaData.value.rows[0],
         column: pureExtensionAreaData.value.columns[0],
         cell: null,

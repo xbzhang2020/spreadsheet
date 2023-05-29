@@ -9,7 +9,7 @@
         v-bind="col"
       />
     </el-table>
-    <CellArea :table-info="tableInfo" />
+    <CellArea :table-option="tableOption" />
   </div>
 </template>
 
@@ -33,7 +33,7 @@ const container = ref(null);
 const [mouseEnteredCell, mouseEnteredCellListener] = useGetMouseEnteredCell();
 const getTableBodyContainer = () => getElTableBodyContainer(container.value);
 const isMounted = useMounted();
-const tableInfo = computed<TableInfo>(() => ({
+const tableOption = computed<TableOption>(() => ({
   dataSource: dataSource.value,
   getTableBodyContainer,
   mouseEnteredCell: mouseEnteredCell.value,

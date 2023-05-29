@@ -4,28 +4,34 @@ declare interface BaseObject {
 
 declare interface TableDataSource {
   rows: BaseObject[];
-  columns: ColumnInfo[];
+  columns: ColumnOption[];
 }
 
-declare interface ColumnInfo extends BaseObject {
+declare interface ColumnOption extends BaseObject {
   key: string;
   title: string;
 }
 
-declare interface CellInfo {
+declare interface CellOption {
   row: BaseObject;
-  column: ColumnInfo;
+  column: ColumnOption;
   cell: HTMLElement;
+  rowKey?: string | ((row) => string);
+  columnKey?: string;
+  expandRowKey?: string[];
+  treeProps?: {
+    children: string;
+  };
 }
 
-type GetCellValue = (row: BaseObject, column: ColumnInfo) => any;
-type SetCellValue = (row: BaseObject, column: ColumnInfo, value: any) => boolean;
+type GetCellValue = (row: BaseObject, column: ColumnOption) => any;
+type SetCellValue = (row: BaseObject, column: ColumnOption, value: any) => boolean;
 
-declare interface TableInfo {
+declare interface TableOption {
   dataSource: TableDataSource;
-  mouseEnteredCell: CellInfo;
+  mouseEnteredCell: CellOption;
   isMounted: boolean;
   getTableBodyContainer?: () => Element;
-  getCellValue?: (row: BaseObject, column: ColumnInfo) => any;
-  setCellValue?: (row: BaseObject, column: ColumnInfo, value: any) => boolean;
+  getCellValue?: (row: BaseObject, column: ColumnOption) => any;
+  setCellValue?: (row: BaseObject, column: ColumnOption, value: any) => boolean;
 }

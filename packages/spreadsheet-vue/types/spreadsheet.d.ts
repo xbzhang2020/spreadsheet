@@ -30,7 +30,7 @@ declare interface CellAreaRect {
 
 declare interface CellAreaData {
   rows: BaseObject[];
-  columns: ColumnInfo[];
+  columns: ColumnOption[];
   values: any[][];
   indices: number[][];
 }
