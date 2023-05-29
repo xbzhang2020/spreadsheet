@@ -87,7 +87,6 @@ export default defineComponent({
 
     const handleDragBtnMousedown = () => {
       cellAreas.extension.drag.dragging = true;
-      cellAreas.setExtensionArea(currentCell.value);
     };
 
     const handleMousemove = () => {
