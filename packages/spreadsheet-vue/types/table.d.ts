@@ -2,11 +2,6 @@ declare interface BaseObject {
   [key: string]: unknown;
 }
 
-declare interface TableDataSource {
-  rows: BaseObject[];
-  columns: ColumnOption[];
-}
-
 declare interface ColumnOption extends BaseObject {
   key: string;
   title: string;

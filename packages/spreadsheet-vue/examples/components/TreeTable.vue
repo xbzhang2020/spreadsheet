@@ -7,7 +7,7 @@
       border
       :expand-row-keys="expandRowKeys"
       @cell-mouse-enter="mouseEnteredCellListener"
-      @expand-change.stop="handleExpandChange"
+      @expand-change="handleExpandChange"
     >
       <el-table-column prop="date" label="Date" sortable />
       <el-table-column prop="name" label="Name" sortable />
@@ -153,7 +153,7 @@ const getTableBodyContainer = () => getElTableBodyContainer(container.value);
 const isMounted = useMounted();
 
 const tableOption = computed<TableOption>(() => ({
-  data: tableData as unknown as BaseObject,
+  data: tableData as unknown as BaseObject[],
   columns,
   getTableBodyContainer,
   mouseEnteredCell: mouseEnteredCell.value,

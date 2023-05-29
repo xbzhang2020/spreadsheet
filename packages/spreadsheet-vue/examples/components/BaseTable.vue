@@ -3,7 +3,7 @@
     <el-table :data="dataSource.rows" style="width: 100%" @cell-mouse-enter="mouseEnteredCellListener" class="table">
       <el-table-column
         v-for="col in dataSource.columns"
-        :key="col.prop"
+        :key="col.key"
         :prop="col.key"
         :label="col.title"
         v-bind="col"
@@ -21,7 +21,7 @@ import { getElTableBodyContainer } from "../../utils/adapter";
 import { getTableDataSource } from "../../utils/mock";
 import { useGetMouseEnteredCell } from "../hooks/cell";
 
-const dataSource = computed<TableDataSource>(() => {
+const dataSource = computed(() => {
   const { rows, columns } = getTableDataSource(6, 8);
   return {
     rows,

@@ -364,6 +364,14 @@ export class CellAreasStore {
     this.main.data = calcMainAreaData(this.table, this.selectCell, endCell);
   }
 
+  setMainAreaDragging(value: boolean) {
+    this.main.drag.dragging = value;
+  }
+
+  getMainAreaDragging() {
+    return this.main.drag.dragging;
+  }
+
   getMainAreaStyle() {
     return getAreaRectStyle(this.main.coord.rect);
   }
@@ -385,6 +393,14 @@ export class CellAreasStore {
 
   getExtensionAreaStyle() {
     return getAreaRectStyle(this.extension.coord.rect);
+  }
+
+  setExtensionAreaDragging(value: boolean) {
+    this.extension.drag.dragging = value;
+  }
+
+  getExtensionAreaDragging() {
+    return this.extension.drag.dragging;
   }
 
   setCopyArea() {

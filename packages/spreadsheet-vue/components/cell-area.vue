@@ -77,24 +77,24 @@ export default defineComponent({
 
     const handleMousedown = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (cellAreas.main.drag.dragging || !currentCell.value || !currentCell.value.cell.contains(target)) {
+      if (cellAreas.getMainAreaDragging() === true || !currentCell.value || !currentCell.value.cell.contains(target)) {
         return;
       }
-      cellAreas.main.drag.dragging = true;
+      cellAreas.setMainAreaDragging(true);
       cellAreas.setSelectCell(currentCell.value);
       cellAreas.setMainArea(null);
     };
 
     const handleDragBtnMousedown = () => {
-      cellAreas.extension.drag.dragging = true;
+      cellAreas.setExtensionAreaDragging(true);
     };
 
     const handleMousemove = () => {
-      if (cellAreas.main.drag.dragging) {
+      if (cellAreas.getMainAreaDragging()) {
         cellAreas.setMainArea(currentCell.value);
         return;
       }
-      if (cellAreas.extension.drag.dragging) {
+      if (cellAreas.getExtensionAreaDragging()) {
         cellAreas.setExtensionArea(currentCell.value);
         pureExtensionAreaData.value = cellAreas.getPureExtensionAreaData();
         return;
@@ -102,7 +102,7 @@ export default defineComponent({
     };
 
     const handleMouseup = () => {
-      if (!cellAreas.extension.drag.dragging) return;
+      if (!cellAreas.getExtensionAreaDragging()) return;
 
       const startCell: CellOption = {
         row: pureExtensionAreaData.value.rows[0],
@@ -116,15 +116,16 @@ export default defineComponent({
     };
 
     const handleClick = () => {
-      if (cellAreas.main.drag.dragging) {
-        cellAreas.main.drag.dragging = false;
+      if (cellAreas.getMainAreaDragging()) {
+        cellAreas.setMainAreaDragging(false);
         return;
       }
 
-      if (cellAreas.extension.drag.dragging) {
-        cellAreas.extension.drag.dragging = false;
+      if (cellAreas.getExtensionAreaDragging()) {
+        cellAreas.setExtensionAreaDragging(false);
         return;
       }
+
       cellAreas.setSelectCell(null);
       cellAreas.clearMainArea();
     };
@@ -193,6 +194,7 @@ export default defineComponent({
     border: 2px solid #0a70f5;
     z-index: 1;
     box-sizing: border-box;
+    pointer-events: none;
   }
   &-extension {
     position: absolute;
