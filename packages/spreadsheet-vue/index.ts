@@ -1,3 +1,4 @@
-import SpreadSheetVue from "./components/spreadsheet/SpreadSheet.vue";
+import CellArea from "./components/spreadsheet/CellArea.vue";
+import SpreadSheet from "./components/spreadsheet/SpreadSheet.vue";
 
-export { SpreadSheetVue };
+export { CellArea, SpreadSheet };
