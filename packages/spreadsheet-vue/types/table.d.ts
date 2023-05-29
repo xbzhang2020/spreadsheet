@@ -16,22 +16,22 @@ declare interface CellOption {
   row: BaseObject;
   column: ColumnOption;
   cell: HTMLElement;
-  rowKey?: string | ((row) => string);
-  columnKey?: string;
-  expandRowKey?: string[];
-  treeProps?: {
-    children: string;
-  };
 }
 
 type GetCellValue = (row: BaseObject, column: ColumnOption) => any;
 type SetCellValue = (row: BaseObject, column: ColumnOption, value: any) => boolean;
 
 declare interface TableOption {
-  data: any;
+  data: any[];
   columns: ColumnOption[];
   mouseEnteredCell: CellOption;
   isMounted: boolean;
+  rowKey?: string | ((row) => string);
+  columnKey?: string;
+  expandRowKey?: string[];
+  treeProps?: {
+    children: string;
+  };
   getTableBodyContainer?: () => Element;
   getCellValue?: (row: BaseObject, column: ColumnOption) => any;
   setCellValue?: (row: BaseObject, column: ColumnOption, value: any) => boolean;

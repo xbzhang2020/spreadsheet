@@ -118,7 +118,7 @@ export const setAreaCells = (table: TableOption, startCell: CellOption, source: 
 
   const colStart = table.columns.findIndex(col => col.key === startCell.column.key);
   const colEnd = Math.min(colStart + source[0].length, table.columns.length);
-  const rowStart = table.data.findIndex((row: any) => row === startCell.row);
+  const rowStart = table.data.findIndex(row => row === startCell.row);
   const rowEnd = Math.min(rowStart + source.length, table.data.length);
 
   const data: CellAreaData = {
@@ -219,7 +219,7 @@ const calcExtensionAreaData = (
   orientation: CellAreaOrientation[]
 ) => {
   const index1 = table.columns.findIndex(col => col.key === endCell.column.key);
-  const index2 = table.data.findIndex((row: any) => row === endCell.row);
+  const index2 = table.data.findIndex(row => row === endCell.row);
   const mainData = mainArea.data;
 
   let colStart = mainData.indices[0][1],
