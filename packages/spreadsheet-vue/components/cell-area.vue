@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, watchEffect, Ref, computed, ref, onMounted, onBeforeUnmount, reactive } from "vue";
-import { createCellAreas, getCellExtensionAreaTip } from "../../model/cell-area";
+import { createCellAreas, getCellExtensionAreaTip } from "../model/cell-area";
 
 const useMount = (params: {
   isParentMounted: Ref<boolean>;

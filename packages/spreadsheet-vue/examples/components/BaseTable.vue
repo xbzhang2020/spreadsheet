@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
 import { ref, computed } from "vue";
-import CellArea from "./CellArea.vue";
+import CellArea from "../../components/cell-area.vue";
 import { useMounted } from "@vueuse/core";
 import { getElTableBodyContainer } from "../../utils/adapter";
 import { getTableDataSource } from "../../utils/mock";
