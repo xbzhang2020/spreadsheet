@@ -100,8 +100,8 @@ const getCellAreaDataByIndices = (table: TableOption, indices: CellAreaData["ind
     values: [],
     indices,
   };
-  data.rows = table.dataSource.rows.slice(indices[0][0], indices[1][0]);
-  data.columns = table.dataSource.columns.slice(indices[0][1], indices[1][1]);
+  data.rows = table.data.slice(indices[0][0], indices[1][0]);
+  data.columns = table.columns.slice(indices[0][1], indices[1][1]);
 
   const getCellValue = table.getCellValue || getCellValueDefault;
   data.values = data.rows.reduce((prev, row) => {
@@ -115,16 +115,15 @@ const getCellAreaDataByIndices = (table: TableOption, indices: CellAreaData["ind
 export const setAreaCells = (table: TableOption, startCell: CellOption, source: any[][]) => {
   if (!source.length || !source[0]?.length) return;
   const setCellValue = table.setCellValue || setCellValueDafault;
-  const { dataSource } = table;
 
-  const colStart = dataSource.columns.findIndex(col => col.key === startCell.column.key);
-  const colEnd = Math.min(colStart + source[0].length, dataSource.columns.length);
-  const rowStart = dataSource.rows.findIndex(row => row === startCell.row);
-  const rowEnd = Math.min(rowStart + source.length, dataSource.rows.length);
+  const colStart = table.columns.findIndex(col => col.key === startCell.column.key);
+  const colEnd = Math.min(colStart + source[0].length, table.columns.length);
+  const rowStart = table.data.findIndex((row: any) => row === startCell.row);
+  const rowEnd = Math.min(rowStart + source.length, table.data.length);
 
   const data: CellAreaData = {
-    rows: dataSource.rows.slice(rowStart, rowEnd),
-    columns: dataSource.columns.slice(colStart, colEnd),
+    rows: table.data.slice(rowStart, rowEnd),
+    columns: table.columns.slice(colStart, colEnd),
     values: source,
     indices: [
       [rowStart, colStart],
@@ -180,13 +179,12 @@ const calcMainAreaData = (table: TableOption, startCell: CellOption, endCell?: C
     endCell = startCell;
   }
 
-  const { dataSource } = table;
   let index1: number = null,
     index2: number = null,
     index3: number = null,
     index4: number = null;
 
-  dataSource.columns.forEach((col, index) => {
+  table.columns.forEach((col, index) => {
     if (col.key === startCell.column.key) {
       index1 = index;
     }
@@ -196,7 +194,7 @@ const calcMainAreaData = (table: TableOption, startCell: CellOption, endCell?: C
   });
   const [colStart, colEnd] = getCellAreaIndcies(index1, index2);
 
-  dataSource.rows.forEach((row, index) => {
+  table.data.forEach((row: any, index: number) => {
     if (row === startCell.row) {
       index3 = index;
     }
@@ -220,9 +218,8 @@ const calcExtensionAreaData = (
   endCell: CellOption,
   orientation: CellAreaOrientation[]
 ) => {
-  const { dataSource } = table;
-  const index1 = dataSource.columns.findIndex(col => col.key === endCell.column.key);
-  const index2 = dataSource.rows.findIndex(row => row === endCell.row);
+  const index1 = table.columns.findIndex(col => col.key === endCell.column.key);
+  const index2 = table.data.findIndex((row: any) => row === endCell.row);
   const mainData = mainArea.data;
 
   let colStart = mainData.indices[0][1],

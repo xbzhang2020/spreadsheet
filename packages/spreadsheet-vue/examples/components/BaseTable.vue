@@ -34,7 +34,8 @@ const [mouseEnteredCell, mouseEnteredCellListener] = useGetMouseEnteredCell();
 const getTableBodyContainer = () => getElTableBodyContainer(container.value);
 const isMounted = useMounted();
 const tableOption = computed<TableOption>(() => ({
-  dataSource: dataSource.value,
+  columns: dataSource.value.columns,
+  data: dataSource.value.rows,
   getTableBodyContainer,
   mouseEnteredCell: mouseEnteredCell.value,
   isMounted: isMounted.value,

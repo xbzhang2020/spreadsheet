@@ -153,10 +153,8 @@ const getTableBodyContainer = () => getElTableBodyContainer(container.value);
 const isMounted = useMounted();
 
 const tableOption = computed<TableOption>(() => ({
-  dataSource: {
-    rows: tableData as unknown as BaseObject[],
-    columns: columns,
-  },
+  data: tableData as unknown as BaseObject,
+  columns,
   getTableBodyContainer,
   mouseEnteredCell: mouseEnteredCell.value,
   isMounted: isMounted.value,
