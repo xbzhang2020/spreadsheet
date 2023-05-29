@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import SpreadSheet from "./components/BaseTable.vue";
+// import BaseTable from "./components/BaseTable.vue";
+import TreeTable from "./components/TreeTable.vue";
 </script>
 
 <template>
-  <SpreadSheet />
+  <!-- <BaseTable /> -->
+  <TreeTable />
 </template>

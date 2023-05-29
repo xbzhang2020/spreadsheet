@@ -1,6 +1,6 @@
 <template>
   <div ref="container">
-    <el-table :data="dataSource.rows" style="width: 100%" @cell-mouse-enter="hadnleCellMouseEnter" class="table">
+    <el-table :data="dataSource.rows" style="width: 100%" @cell-mouse-enter="mouseEnteredCellListener" class="table">
       <el-table-column
         v-for="col in dataSource.columns"
         :key="col.prop"
@@ -19,6 +19,7 @@ import CellArea from "../../components/cell-area.vue";
 import { useMounted } from "@vueuse/core";
 import { getElTableBodyContainer } from "../../utils/adapter";
 import { getTableDataSource } from "../../utils/mock";
+import { useGetMouseEnteredCell } from "../hooks/cell";
 
 const container = ref(null);
 
@@ -36,18 +37,7 @@ const dataSource = computed<TableDataSource>(() => {
   };
 });
 
-const mouseEnteredCell = ref(null);
-
-const hadnleCellMouseEnter = (row: BaseObject, column: any, cell: any) => {
-  mouseEnteredCell.value = {
-    row,
-    column: {
-      key: column.property,
-      title: column.label,
-    },
-    cell,
-  };
-};
+const [mouseEnteredCell, mouseEnteredCellListener] = useGetMouseEnteredCell();
 
 const tableInfo = computed<TableInfo>(() => ({
   dataSource: dataSource.value,
