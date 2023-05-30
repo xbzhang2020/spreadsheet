@@ -61,8 +61,10 @@ export default defineComponent({
 
     const currentCell = computed(() => props.tableOption.mouseEnteredCell);
     const cellAreas = reactive(createCellAreas());
+
     watchEffect(() => {
-      cellAreas.setTableInfo(props.tableOption);
+      if (!props.tableOption.isMounted) return;
+      cellAreas.setTableInfo({ ...props.tableOption, dataSource: props.tableOption.data, data: null });
     });
 
     const selectCellStyle = computed(() => cellAreas.getSelectCellStyle());
@@ -102,20 +104,6 @@ export default defineComponent({
     };
 
     const handleMouseup = () => {
-      if (!cellAreas.getExtensionAreaDragging()) return;
-
-      const startCell: CellOption = {
-        row: pureExtensionAreaData.value.rows[0],
-        column: pureExtensionAreaData.value.columns[0],
-        cell: null,
-      };
-
-      cellAreas.setAreaCells(startCell, pureExtensionAreaData.value.values);
-      cellAreas.extendMainArea();
-      cellAreas.clearExtensionArea();
-    };
-
-    const handleClick = () => {
       if (cellAreas.getMainAreaDragging()) {
         cellAreas.setMainAreaDragging(false);
         return;
@@ -123,6 +111,15 @@ export default defineComponent({
 
       if (cellAreas.getExtensionAreaDragging()) {
         cellAreas.setExtensionAreaDragging(false);
+        const startCell: CellOption = {
+          row: pureExtensionAreaData.value.rows[0],
+          column: pureExtensionAreaData.value.columns[0],
+          cell: null,
+        };
+
+        cellAreas.setAreaCells(startCell, pureExtensionAreaData.value.values);
+        cellAreas.extendMainArea();
+        cellAreas.clearExtensionArea();
         return;
       }
 
@@ -139,7 +136,6 @@ export default defineComponent({
       window.addEventListener("mousedown", handleMousedown);
       window.addEventListener("mousemove", handleMousemove);
       window.addEventListener("mouseup", handleMouseup);
-      window.addEventListener("click", handleClick);
       window.addEventListener("dblclick", handleDbClick);
     });
 
@@ -147,7 +143,6 @@ export default defineComponent({
       window.removeEventListener("mousedown", handleMousedown);
       window.removeEventListener("mousemove", handleMousemove);
       window.removeEventListener("mouseup", handleMouseup);
-      window.removeEventListener("click", handleClick);
       window.removeEventListener("dblclick", handleDbClick);
     });
 

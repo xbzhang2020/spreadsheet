@@ -1,4 +1,4 @@
-import { getDestValues } from "../utils/process";
+import { getDestValues, traverseTree } from "../utils/process";
 
 export const getElementRect = (element: HTMLElement) => {
   const pos: CellAreaRect = {
@@ -332,6 +332,24 @@ const calcPureExtensionAreaData = (table: TableOption, mainArea: CellArea, exten
   return data;
 };
 
+const getCellAreaDataSource = (table: TableOption) => {
+  const { dataSource, expandRowKeys, rowKey } = table;
+
+  if (!expandRowKeys || expandRowKeys?.length < 1) return dataSource;
+  const tableData: any[] = [];
+  traverseTree(dataSource, item => {
+    const isRoot = dataSource.find(row => row[rowKey] === item[rowKey]);
+    if (isRoot) {
+      tableData.push(item);
+    }
+
+    if (expandRowKeys.includes(item[rowKey]) && item.children?.length) {
+      tableData.push(...item.children);
+    }
+  });
+  return tableData;
+};
+
 export class CellAreasStore {
   table: TableOption = null;
   selectCell: CellOption = null;
@@ -342,6 +360,7 @@ export class CellAreasStore {
 
   setTableInfo(table: TableOption) {
     this.table = table;
+    this.table.data = getCellAreaDataSource(table);
   }
 
   setSelectCell(startCell: CellOption) {

@@ -39,3 +39,25 @@ export const getDestValues = (sourceValues: any[], length: number, appendFisrt =
   }
   return res;
 };
+
+// 遍历数结构
+type TraverseTreeParamsConfig = {
+  onlyLeaf?: boolean;
+};
+
+export const traverseTree = (
+  treeData: any[],
+  cb = (item: any) => item,
+  config: TraverseTreeParamsConfig = {}
+): any[] => {
+  if (!treeData || !treeData.length) return [];
+  const { onlyLeaf } = config;
+  treeData.forEach(item => {
+    if (!onlyLeaf || !item.children) {
+      cb(item);
+    }
+    if (item.children && item.children.length) {
+      traverseTree(item.children, cb, config);
+    }
+  });
+};

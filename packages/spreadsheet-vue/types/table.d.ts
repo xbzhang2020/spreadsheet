@@ -17,13 +17,14 @@ type GetCellValue = (row: BaseObject, column: ColumnOption) => any;
 type SetCellValue = (row: BaseObject, column: ColumnOption, value: any) => boolean;
 
 declare interface TableOption {
+  dataSource?: any[]
   data: any[];
   columns: ColumnOption[];
   mouseEnteredCell: CellOption;
   isMounted: boolean;
-  rowKey?: string | ((row) => string);
+  rowKey?: string;
   columnKey?: string;
-  expandRowKey?: string[];
+  expandRowKeys?: string[];
   treeProps?: {
     children: string;
   };
