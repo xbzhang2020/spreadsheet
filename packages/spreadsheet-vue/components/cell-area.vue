@@ -42,29 +42,50 @@ const useMount = (params: {
 export default defineComponent({
   name: "CellArea",
   props: {
-    tableOption: {
-      required: true,
-      type: Object as PropType<TableOption>,
+    isTableMounted: {
+      default: false,
+      type: Boolean,
     },
+    getTableBodyContainer: {
+      default: null,
+      type: Function,
+    },
+    mouseEnteredCell: {
+      default: null,
+      type: Object as PropType<CellOption>,
+    },
+    dataSource: {
+      default: () => [] as unknown[],
+      type: Array,
+    },
+    columns: {
+      default: () => [] as ColumnOption[],
+      type: Array as PropType<ColumnOption[]>,
+    },
+    rowKey: String,
+    columnKey: String,
+    expandRowKeys: Array,
+    getCellValue: Function,
+    setCellValue: Function,
   },
   setup(props) {
     const areaRef = ref(null);
 
-    const isParentMounted = computed(() => props.tableOption.isMounted);
+    const isParentMounted = computed(() => props.isTableMounted);
     const getCellAreaContainer = () => areaRef.value;
 
     useMount({
       isParentMounted: isParentMounted,
-      getTableBodyConatiner: props.tableOption.getTableBodyContainer,
+      getTableBodyConatiner: props.getTableBodyContainer,
       getCellAreaContainer,
     });
 
-    const currentCell = computed(() => props.tableOption.mouseEnteredCell);
+    const currentCell = computed(() => props.mouseEnteredCell);
     const cellAreas = reactive(createCellAreas());
 
     watchEffect(() => {
-      if (!props.tableOption.isMounted) return;
-      cellAreas.setTableInfo({ ...props.tableOption, dataSource: props.tableOption.data, data: null });
+      const { dataSource, rowKey, columnKey, columns } = props;
+      cellAreas.setTableInfo({ dataSource, columns, rowKey, columnKey });
     });
 
     const selectCellStyle = computed(() => cellAreas.getSelectCellStyle());

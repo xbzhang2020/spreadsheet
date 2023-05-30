@@ -9,7 +9,13 @@
         v-bind="col"
       />
     </el-table>
-    <CellArea :table-option="tableOption" />
+    <CellArea
+      :is-table-mounted="isMounted"
+      :get-table-body-container="getTableBodyContainer"
+      :mouse-entered-cell="mouseEnteredCell"
+      :data-source="dataSource.rows"
+      :columns="dataSource.columns"
+    />
   </div>
 </template>
 
@@ -33,13 +39,6 @@ const container = ref(null);
 const [mouseEnteredCell, mouseEnteredCellListener] = useGetMouseEnteredCell();
 const getTableBodyContainer = () => getElTableBodyContainer(container.value);
 const isMounted = useMounted();
-const tableOption = computed<TableOption>(() => ({
-  columns: dataSource.value.columns,
-  data: dataSource.value.rows,
-  getTableBodyContainer,
-  mouseEnteredCell: mouseEnteredCell.value,
-  isMounted: isMounted.value,
-}));
 </script>
 
 <style lang="scss">

@@ -332,7 +332,7 @@ const calcPureExtensionAreaData = (table: TableOption, mainArea: CellArea, exten
   return data;
 };
 
-const getCellAreaDataSource = (table: TableOption) => {
+const getCellAreaDataSource = (table: Partial<TableOption>) => {
   const { dataSource, expandRowKeys, rowKey } = table;
 
   if (!expandRowKeys || expandRowKeys?.length < 1) return dataSource;
@@ -351,16 +351,19 @@ const getCellAreaDataSource = (table: TableOption) => {
 };
 
 export class CellAreasStore {
-  table: TableOption = null;
+  table = {} as TableOption;
   selectCell: CellOption = null;
   main = createMainArea();
   extension = createExtensionArea();
   copy = createCopyArea();
   extended: boolean = false;
 
-  setTableInfo(table: TableOption) {
-    this.table = table;
-    this.table.data = getCellAreaDataSource(table);
+  setTableInfo(table: Partial<TableOption>) {
+    const data = getCellAreaDataSource(table);
+    this.table = Object.assign(this.table, {
+      ...table,
+      data,
+    });
   }
 
   setSelectCell(startCell: CellOption) {
