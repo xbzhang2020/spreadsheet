@@ -429,6 +429,18 @@ export class CellAreasStore {
     this.copy.coord = { ...this.main.coord };
   }
 
+  getCopyAreaDragging() {
+    return this.copy.drag.dragging;
+  }
+
+  setCopyAreaDragging(value: boolean) {
+    this.copy.drag.dragging = value;
+  }
+
+  getCopyAreaStyle() {
+    return getAreaRectStyle(this.copy.coord.rect);
+  }
+
   extendMainArea() {
     this.extended = true;
     this.main.coord = { ...this.extension.coord };
