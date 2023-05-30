@@ -13,11 +13,19 @@
       <el-table-column prop="name" label="Name" sortable />
       <el-table-column prop="address" label="Address" sortable />
     </el-table>
-    <CellArea :table-option="tableOption" />
+    <CellArea
+      :is-table-mounted="isMounted"
+      :get-table-body-container="getTableBodyContainer"
+      :mouse-entered-cell="mouseEnteredCell"
+      :data-source="tableData"
+      :columns="columns"
+      :expand-row-keys="expandRowKeys"
+      row-key="id"
+    />
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useGetMouseEnteredCell } from "../hooks/cell";
 import { getElTableBodyContainer } from "../../utils/adapter";
 import { useMounted } from "@vueuse/core";
@@ -151,14 +159,4 @@ const container = ref(null);
 const [mouseEnteredCell, mouseEnteredCellListener] = useGetMouseEnteredCell();
 const getTableBodyContainer = () => getElTableBodyContainer(container.value);
 const isMounted = useMounted();
-
-const tableOption = computed<TableOption>(() => ({
-  data: tableData as unknown as BaseObject[],
-  columns,
-  getTableBodyContainer,
-  mouseEnteredCell: mouseEnteredCell.value,
-  isMounted: isMounted.value,
-  expandRowKeys: expandRowKeys.value,
-  rowKey: "id",
-}));
 </script>

@@ -64,7 +64,7 @@ export default defineComponent({
     },
     rowKey: String,
     columnKey: String,
-    expandRowKeys: Array,
+    expandRowKeys: Array as PropType<string[]>,
     getCellValue: Function,
     setCellValue: Function,
   },
@@ -84,8 +84,8 @@ export default defineComponent({
     const cellAreas = reactive(createCellAreas());
 
     watchEffect(() => {
-      const { dataSource, rowKey, columnKey, columns } = props;
-      cellAreas.setTableInfo({ dataSource, columns, rowKey, columnKey });
+      const { dataSource, rowKey, columnKey, columns, expandRowKeys } = props;
+      cellAreas.setTableInfo({ dataSource, columns, rowKey, columnKey, expandRowKeys });
     });
 
     const selectCellStyle = computed(() => cellAreas.getSelectCellStyle());
