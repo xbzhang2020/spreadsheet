@@ -227,7 +227,7 @@ export default defineComponent({
     font-size: 12px;
     line-height: 22px;
     border-radius: 3px;
-    z-index: 1;
+    z-index: 3;
   }
 }
 </style>
