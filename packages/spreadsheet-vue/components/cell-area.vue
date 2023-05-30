@@ -1,14 +1,14 @@
 <template>
   <div ref="areaRef" class="spread-cell-area">
-    <div class="spread-cell-area-select" :style="selectCellStyle"></div>
-    <div class="spread-cell-area-main" :class="[extended && 'spread-cell-area-main-extended']" :style="mainAreaStyle">
-      <div class="spread-cell-area-main-btn" @mousedown.stop="handleDragBtnMousedown"></div>
+    <div class="spread-cell-area__select" :style="selectCellStyle"></div>
+    <div class="spread-cell-area__main" :class="[extended && 'spread-cell-area__main--extended']" :style="mainAreaStyle">
+      <div class="spread-cell-area__main-btn" @mousedown.stop="handleDragBtnMousedown"></div>
     </div>
-    <div class="spread-cell-area-extension" :style="extensionAreaStyle"></div>
-    <div v-if="extensionAreaTip" class="spread-cell-area-extension-tip" :style="extensionAreaTip.style">
+    <div class="spread-cell-area__extension" :style="extensionAreaStyle"></div>
+    <div v-if="extensionAreaTip" class="spread-cell-area__extension-tip" :style="extensionAreaTip.style">
       {{ extensionAreaTip.value }}
     </div>
-    <div class="spread-cell-area-copy"></div>
+    <div class="spread-cell-area__copy"></div>
   </div>
 </template>
 
@@ -184,42 +184,40 @@ export default defineComponent({
 
 <style lang="scss">
 .spread-cell-area {
-  &-main {
+  pointer-events: none;
+  &__select {
+    position: absolute;
+    border: 2px solid #0a70f5;
+    z-index: 3;
+    box-sizing: border-box;
+  }
+  &__main {
     position: absolute;
     border: 1px solid #0a70f5;
     user-select: none;
-    pointer-events: none;
-    z-index: 2;
+    z-index: 3;
     box-sizing: border-box;
+    &--extended {
+      background-color: #0a70f52e;
+    }
   }
-  &-main-btn {
+  &__main-btn {
     width: 6px;
     height: 6px;
     position: absolute;
-    bottom: -1px;
-    right: -1px;
+    bottom: 0;
+    right: 0;
     background-color: #0a70f5;
     pointer-events: auto;
     cursor: crosshair;
   }
-  &-main-extended {
-    background-color: #0a70f52e;
-  }
-  &-select {
-    position: absolute;
-    border: 2px solid #0a70f5;
-    z-index: 1;
-    box-sizing: border-box;
-    pointer-events: none;
-  }
-  &-extension {
+  &__extension {
     position: absolute;
     border: 1px dashed #0a70f5;
-    pointer-events: none;
     z-index: 1;
     box-sizing: border-box;
   }
-  &-extension-tip {
+  &__extension-tip {
     position: absolute;
     background-color: #000;
     height: 22px;

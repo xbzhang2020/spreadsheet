@@ -12,7 +12,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "./index.ts"),
       name: "Spreadsheet",
-      fileName: "spreadsheet",
+      fileName: "index",
     },
     rollupOptions: {
       external: ["vue"],
@@ -26,7 +26,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": resolve(__dirname, '.'),
+      "@": resolve(__dirname, "."),
     },
   },
 });
