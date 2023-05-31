@@ -131,6 +131,8 @@ export const setAreaCells = (table: TableOption, startCell: CellOption, source: 
     ],
   };
 
+  console.log(data);
+
   data.rows.forEach((row, i) => {
     data.columns.forEach((col, j) => {
       setCellValue(row, col, data.values[i][j]);
@@ -452,22 +454,9 @@ export class CellAreasStore {
     this.extension.data = initAreaData();
   }
 
-  clearArea(area: CellArea) {
-    const rect: CellAreaRect = {
-      left: 0,
-      width: 0,
-      top: 0,
-      height: 0,
-    };
-
-    area.coord.rect = rect;
-    area.coord.orientation = [];
-    area.data = {
-      rows: [],
-      columns: [],
-      values: [],
-      indices: [],
-    };
+  clearCopyArea() {
+    this.copy.coord = initAreaCoord();
+    this.copy.data = initAreaData();
   }
 
   getPureExtensionAreaData() {

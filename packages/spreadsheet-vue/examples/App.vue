@@ -7,3 +7,9 @@ import TreeTable from "./components/TreeTable.vue";
   <!-- <BaseTable /> -->
   <TreeTable />
 </template>
+
+<style lang="scss">
+.table {
+  user-select: none;
+}
+</style>

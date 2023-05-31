@@ -180,8 +180,8 @@ export default defineComponent({
 
     const handleKeydown = (event: KeyboardEvent) => {
       if (!cellAreas.selectCell) return;
-
-      if ((event.ctrlKey || event.metaKey) && event.keyCode === 67) {
+      console.log(event)
+      if ((event.ctrlKey) && event.keyCode === 67) {
         handleCopy();
       }
     };
@@ -190,6 +190,7 @@ export default defineComponent({
       cellAreas.setSelectCell(null);
       cellAreas.clearMainArea();
       cellAreas.clearExtensionArea();
+      cellAreas.clearCopyArea();
     };
 
     onMounted(() => {

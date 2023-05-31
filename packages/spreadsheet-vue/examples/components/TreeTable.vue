@@ -8,6 +8,7 @@
       :expand-row-keys="expandRowKeys"
       @cell-mouse-enter="mouseEnteredCellListener"
       @expand-change="handleExpandChange"
+      class="table"
     >
       <el-table-column prop="date" label="Date" sortable />
       <el-table-column prop="name" label="Name" sortable />
@@ -69,8 +70,8 @@ const tableData: User[] = [
   {
     id: 2,
     date: "2016-05-04",
-    name: "wangxiaohu",
-    address: "No. 189, Grove St, Los Angeles",
+    name: "zhangxingbin",
+    address: "No. 190, Grove St, Los Angeles",
   },
   {
     id: 3,
