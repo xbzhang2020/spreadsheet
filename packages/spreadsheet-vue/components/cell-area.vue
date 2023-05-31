@@ -180,8 +180,7 @@ export default defineComponent({
 
     const handleKeydown = (event: KeyboardEvent) => {
       if (!cellAreas.selectCell) return;
-      console.log(event)
-      if ((event.ctrlKey) && event.keyCode === 67) {
+      if ((event.ctrlKey || event.metaKey) && event.keyCode === 67) {
         handleCopy();
       }
     };
