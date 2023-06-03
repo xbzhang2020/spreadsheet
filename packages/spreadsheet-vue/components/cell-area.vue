@@ -18,14 +18,16 @@
 
 <script lang="ts">
 import { defineComponent, PropType, watchEffect, Ref, computed, ref, onMounted, onBeforeUnmount, reactive } from "vue";
-import { createCellAreas, getCellExtensionAreaTip } from "../model/cell-area";
+import { CellAreasDao, getAreaRectStyle } from "../model/cell-area";
 import { copy2Clipboard, json2Csv, csv2Json } from "../utils/process";
 
-const useMount = (params: {
+type UseMountParams = {
   isParentMounted: Ref<boolean>;
   getTableBodyConatiner: Function;
   getCellAreaContainer: Function;
-}) => {
+};
+
+const useMount = (params: UseMountParams) => {
   const { isParentMounted, getTableBodyConatiner, getCellAreaContainer } = params;
 
   const mount = () => {
@@ -86,59 +88,63 @@ export default defineComponent({
     });
 
     const currentCell = computed(() => props.mouseEnteredCell);
-    const cellAreas = reactive(createCellAreas());
+    const cellAreas = reactive(new CellAreasDao());
 
     watchEffect(() => {
       const { dataSource, rowKey, columnKey, columns, expandRowKeys } = props;
       cellAreas.setTableInfo({ dataSource, columns, rowKey, columnKey, expandRowKeys });
     });
 
-    const selectCellStyle = computed(() => cellAreas.getSelectCellStyle());
-    const mainAreaStyle = computed(() => cellAreas.getMainAreaStyle());
-    const extensionAreaStyle = computed(() => cellAreas.getExtensionAreaStyle());
-    const copyAreaStyle = computed(() => cellAreas.getCopyAreaStyle());
-    const extended = computed(() => cellAreas.isExtended());
+    const selectCellStyle = computed(() => getAreaRectStyle(cellAreas.getSelectCellRect()));
+    const mainAreaStyle = computed(() => getAreaRectStyle(cellAreas.mainArea.getLayout().rect));
+    const extensionAreaStyle = computed(() => getAreaRectStyle(cellAreas.extensionArea.getLayout().rect));
+    const copyAreaStyle = computed(() => getAreaRectStyle(cellAreas.copyArea.getLayout().rect));
+
+    const extended = computed(() => {
+      const [start, end] = cellAreas.mainArea.getIndices();
+      if (!start || !end) return false;
+      const rowSpan = end[0] - start[0];
+      const colSpan = end[1] - start[1];
+      return rowSpan > 1 || colSpan > 1;
+    });
 
     const pureExtensionAreaData: Ref<CellAreaData> = ref(null);
-    const extensionAreaTip = computed(() =>
-      getCellExtensionAreaTip(cellAreas.extension, pureExtensionAreaData.value?.values)
-    );
+    const extensionAreaTip = computed(() => cellAreas.getPureExtensionAreaTip(pureExtensionAreaData.value?.values));
 
     const handleMousedown = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (cellAreas.getMainAreaDragging() === true || !currentCell.value || !currentCell.value.cell.contains(target)) {
+      if (cellAreas.mainArea.isDragging() === true || !currentCell.value || !currentCell.value.cell.contains(target)) {
         return;
       }
-      cellAreas.setMainAreaDragging(true);
+      cellAreas.mainArea.setDragging(true);
       cellAreas.setSelectCell(currentCell.value);
       cellAreas.setMainArea(null);
     };
 
     const handleDragBtnMousedown = () => {
-      cellAreas.setExtensionAreaDragging(true);
+      cellAreas.extensionArea.setDragging(true);
     };
 
     const handleMousemove = () => {
-      if (cellAreas.getMainAreaDragging()) {
-        cellAreas.setMainArea(currentCell.value);
+      if (cellAreas.mainArea.isDragging()) {
+        cellAreas.setMainArea(currentCell.value?.cell);
         return;
       }
-      if (cellAreas.getExtensionAreaDragging()) {
-        cellAreas.setExtensionArea(currentCell.value);
+      if (cellAreas.extensionArea.isDragging()) {
+        cellAreas.setExtensionArea(currentCell.value?.cell);
         pureExtensionAreaData.value = cellAreas.getPureExtensionAreaData();
         return;
       }
     };
 
     const handleMouseup = () => {
-      if (cellAreas.getMainAreaDragging()) {
-        cellAreas.setMainAreaDragging(false);
+      if (cellAreas.mainArea.isDragging()) {
+        cellAreas.mainArea.setDragging(false);
         return;
       }
 
-      if (cellAreas.getExtensionAreaDragging()) {
-        cellAreas.setExtensionAreaDragging(false);
-
+      if (cellAreas.extensionArea.isDragging()) {
+        cellAreas.extensionArea.setDragging(false);
         if (!pureExtensionAreaData.value) return;
         const startCell: CellOption = {
           row: pureExtensionAreaData.value.rows[0],
@@ -146,25 +152,27 @@ export default defineComponent({
           cell: null,
         };
 
-        cellAreas.setAreaCells(startCell, pureExtensionAreaData.value.values);
-        cellAreas.extendMainArea();
-        cellAreas.clearExtensionArea();
+        cellAreas.setCellsData(startCell, pureExtensionAreaData.value.values);
+        cellAreas.mainArea.setAreaFrom(cellAreas.extensionArea.area);
+        cellAreas.extensionArea.clear();
+        pureExtensionAreaData.value = null;
         return;
       }
 
       cellAreas.setSelectCell(null);
-      cellAreas.clearMainArea();
+      cellAreas.mainArea.clear();
     };
 
     const handleCopy = () => {
-      const data = cellAreas.main.data.values;
+      const data = cellAreas.mainArea.getData().values;
       if (!data?.length) return;
 
       copy2Clipboard(json2Csv(data));
 
-      cellAreas.setCopyAreaDragging(true);
+      cellAreas.copyArea.setDragging(true);
       cellAreas.setCopyArea();
-      cellAreas.clearMainArea();
+      cellAreas.mainArea.clear();
+
       cellAreas.setSelectCell(null);
     };
 
@@ -172,10 +180,8 @@ export default defineComponent({
       if (!cellAreas.selectCell) return;
 
       const clipboardData = csv2Json(event.clipboardData);
-      cellAreas.setAreaCells(cellAreas.selectCell as any, clipboardData);
-      // const { columns } = setCellsData(selectedCell.value, clipboardData)
-      // currentCell.value = getNextCell(props.getTableCells(), selectedCell.value, columns.length - 1)
-      // cellAreas.setMainArea(currentCell.value);
+      const indices = cellAreas.setCellsData(cellAreas.selectCell as CellOption, clipboardData);
+      cellAreas.setMainArea(indices[1]);
     };
 
     const handleKeydown = (event: KeyboardEvent) => {
@@ -187,9 +193,9 @@ export default defineComponent({
 
     const handleDbClick = () => {
       cellAreas.setSelectCell(null);
-      cellAreas.clearMainArea();
-      cellAreas.clearExtensionArea();
-      cellAreas.clearCopyArea();
+      cellAreas.mainArea.clear();
+      cellAreas.extensionArea.clear();
+      cellAreas.copyArea.clear();
     };
 
     onMounted(() => {

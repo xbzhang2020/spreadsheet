@@ -1,6 +1,6 @@
 import { getDestValues, traverseTree } from "../utils/process";
 
-export const getElementRect = (element: HTMLElement) => {
+const getElementRect = (element: HTMLElement) => {
   const pos: CellAreaRect = {
     left: element.offsetLeft,
     top: element.offsetTop,
@@ -10,15 +10,27 @@ export const getElementRect = (element: HTMLElement) => {
   return pos;
 };
 
-export const getAreaRectStyle = (rect: CellAreaRect) => {
+const getAreaRectStyle = (rect: CellAreaRect) => {
   const { left, width, top, height } = rect;
-  return {
+  const style = {
     left: left + "px",
     top: top + "px",
     width: width + "px",
     height: height + "px",
     display: width || height ? "block" : "none",
   };
+  return style;
+};
+
+const getAreaTipRectStyle = (rect: CellAreaTipRect) => {
+  const style: Partial<Record<keyof CellAreaTipRect, string>> = {};
+  let key: keyof CellAreaTipRect;
+  for (key in rect) {
+    if (rect[key] || rect[key] === 0) {
+      style[key] = `${rect[key]}px`;
+    }
+  }
+  return style;
 };
 
 const initAreaRect = (): CellAreaRect => {
@@ -42,13 +54,13 @@ const initAreaData = (): CellAreaData => {
     rows: [],
     columns: [],
     values: [],
-    indices: [],
   };
 };
 
 const initArea = (option: DeepPartial<CellArea> = {}) => {
   const res: CellArea = {
     coord: initAreaCoord(),
+    indices: [],
     data: initAreaData(),
     drag: {
       mode: option.drag?.mode || null,
@@ -81,24 +93,16 @@ const createCopyArea = () => {
   return area;
 };
 
-const getCellAreaIndcies = (index1: number, index2: number) => {
-  if (index1 > index2) {
-    return [index2, index1];
-  }
-  return [index1, index2];
-};
-
 const getCellValueDefault = (row: BaseObject, column: ColumnOption) => row[column.key];
 const setCellValueDafault = (row: BaseObject, column: ColumnOption, value: any) => {
   row[column.key] = value;
 };
 
-const getCellAreaDataByIndices = (table: TableOption, indices: CellAreaData["indices"]) => {
+const getCellAreaDataByIndices = (table: TableOption, indices: number[][]) => {
   const data: CellAreaData = {
     rows: [],
     columns: [],
     values: [],
-    indices,
   };
   data.rows = table.data.slice(indices[0][0], indices[1][0]);
   data.columns = table.columns.slice(indices[0][1], indices[1][1]);
@@ -112,7 +116,7 @@ const getCellAreaDataByIndices = (table: TableOption, indices: CellAreaData["ind
   return data;
 };
 
-export const setAreaCells = (table: TableOption, startCell: CellOption, source: any[][]) => {
+const setCellsData = (table: TableOption, startCell: CellOption, source: any[][]) => {
   if (!source.length || !source[0]?.length) return;
   const setCellValue = table.setCellValue || setCellValueDafault;
 
@@ -125,13 +129,7 @@ export const setAreaCells = (table: TableOption, startCell: CellOption, source: 
     rows: table.data.slice(rowStart, rowEnd),
     columns: table.columns.slice(colStart, colEnd),
     values: source,
-    indices: [
-      [rowStart, colStart],
-      [rowEnd, colEnd],
-    ],
   };
-
-  console.log(data);
 
   data.rows.forEach((row, i) => {
     data.columns.forEach((col, j) => {
@@ -139,11 +137,15 @@ export const setAreaCells = (table: TableOption, startCell: CellOption, source: 
     });
   });
 
-  return data;
+  const indices = [
+    [rowStart, colStart],
+    [rowEnd, colEnd],
+  ];
+  return indices;
 };
 
-const calcMainAreaCoord = (startCell: CellOption, endCell: CellOption) => {
-  const rect = getElementRect(startCell.cell);
+const calcMainAreaCoord = (startCell: HTMLElement, endCell: HTMLElement) => {
+  const rect = getElementRect(startCell);
   const orientation: CellAreaOrientation[] = [];
 
   const coord: CellAreaCoord = {
@@ -153,7 +155,7 @@ const calcMainAreaCoord = (startCell: CellOption, endCell: CellOption) => {
 
   if (!endCell) return coord;
 
-  const endRect = getElementRect(endCell.cell);
+  const endRect = getElementRect(endCell);
 
   if (endRect.left >= rect.left) {
     rect.width = endRect.left - rect.left + endRect.width;
@@ -176,81 +178,40 @@ const calcMainAreaCoord = (startCell: CellOption, endCell: CellOption) => {
   return coord;
 };
 
-const calcMainAreaData = (table: TableOption, startCell: CellOption, endCell?: CellOption) => {
-  if (!endCell) {
-    endCell = startCell;
-  }
-
-  let index1: number = null,
-    index2: number = null,
-    index3: number = null,
-    index4: number = null;
-
-  table.columns.forEach((col, index) => {
-    if (col.key === startCell.column.key) {
-      index1 = index;
-    }
-    if (col.key === endCell.column.key) {
-      index2 = index;
-    }
-  });
-  const [colStart, colEnd] = getCellAreaIndcies(index1, index2);
-
-  table.data.forEach((row: any, index: number) => {
-    if (row === startCell.row) {
-      index3 = index;
-    }
-    if (row === endCell.row) {
-      index4 = index;
-    }
-  });
-  const [rowStart, rowEnd] = getCellAreaIndcies(index3, index4);
-
-  const indices = [
-    [rowStart, colStart],
-    [rowEnd + 1, colEnd + 1],
-  ];
-
-  return getCellAreaDataByIndices(table, indices);
-};
-
-const calcExtensionAreaData = (
-  table: TableOption,
-  mainArea: CellArea,
-  endCell: CellOption,
+const calcExtensionAreaIndices = (
+  mainIndices: number[][],
+  endCell: HTMLElement,
   orientation: CellAreaOrientation[]
 ) => {
-  const index1 = table.columns.findIndex(col => col.key === endCell.column.key);
-  const index2 = table.data.findIndex(row => row === endCell.row);
-  const mainData = mainArea.data;
+  const [index1, index2] = getCellIndices(endCell);
 
-  let colStart = mainData.indices[0][1],
-    colEnd = mainData.indices[1][1],
-    rowStart = mainData.indices[0][0],
-    rowEnd = mainData.indices[1][0];
+  let colStart = mainIndices[0][1],
+    colEnd = mainIndices[1][1],
+    rowStart = mainIndices[0][0],
+    rowEnd = mainIndices[1][0];
 
   if (orientation.includes("left")) {
-    colStart = index1;
+    colStart = index2;
   } else if (orientation.includes("right")) {
-    colEnd = index1 + 1;
+    colEnd = index2 + 1;
   }
 
   if (orientation.includes("top")) {
-    rowStart = index2;
+    rowStart = index1;
   } else {
-    rowEnd = index2 + 1;
+    rowEnd = index1 + 1;
   }
 
-  const indices = [
+  const indices: CellAreaIndices[] = [
     [rowStart, colStart],
     [rowEnd, colEnd],
   ];
 
-  return getCellAreaDataByIndices(table, indices);
+  return indices;
 };
 
-const calcExtensionAreaCoord = (mainArea: CellArea, endCell: CellOption) => {
-  const mainRect = mainArea.coord.rect;
+const calcExtensionAreaCoord = (mainCoord: CellAreaCoord, endCell: HTMLElement) => {
+  const mainRect = mainCoord.rect;
   const rect = { ...mainRect };
   const orientation: CellAreaOrientation[] = [];
 
@@ -259,7 +220,7 @@ const calcExtensionAreaCoord = (mainArea: CellArea, endCell: CellOption) => {
     orientation,
   };
 
-  const endRect = getElementRect(endCell.cell);
+  const endRect = getElementRect(endCell);
   let lastOrientation = orientation || [];
   if (lastOrientation.length === 0 || lastOrientation.includes("left") || lastOrientation.includes("right")) {
     if (endRect.left < mainRect.left) {
@@ -298,7 +259,6 @@ const calcPureExtensionAreaData = (table: TableOption, mainArea: CellArea, exten
     rows: [],
     columns: [],
     values: [],
-    indices: [],
   };
 
   if (orientation.includes("left") || orientation.includes("right")) {
@@ -310,7 +270,6 @@ const calcPureExtensionAreaData = (table: TableOption, mainArea: CellArea, exten
     });
     data.rows = mainAreaData.rows;
     data.columns = destColumns;
-
     return data;
   }
 
@@ -352,13 +311,313 @@ const getCellAreaDataSource = (table: Partial<TableOption>) => {
   return tableData;
 };
 
-export class CellAreasStore {
+const getCellIndices = (cell: HTMLElement): CellAreaIndices => {
+  if (!cell) return;
+  const td = cell.closest("td");
+  const tr = td.closest("tr");
+  const tbody = tr.closest("tbody");
+  let rowIndex, colIndex;
+
+  // 过滤不展示的行
+  for (let i = 0, index = 0; i < tbody.rows.length; i++) {
+    const row = tbody.rows[i];
+    if (window.getComputedStyle(row).display !== "none") {
+      if (row === tr) {
+        rowIndex = index;
+        break;
+      } else {
+        index++;
+      }
+    }
+  }
+
+  for (let j = 0; j < tr.cells.length; j++) {
+    const cell = tr.cells[j];
+    if (cell === td) {
+      colIndex = j;
+      break;
+    }
+  }
+
+  return [rowIndex, colIndex];
+};
+
+const getEndCellByIndices = (startCell: HTMLElement, indices: number[]) => {
+  if (!startCell) return;
+  const td = startCell.closest("td");
+  const tr = td.closest("tr");
+  const tbody = tr.closest("tbody");
+
+  const rows: HTMLTableRowElement[] = [];
+  // 过滤不展示的行
+  for (let i = 0; i < tbody.rows.length; i++) {
+    const row = tbody.rows[i];
+    if (window.getComputedStyle(row).display !== "none") {
+      rows.push(row);
+    }
+  }
+
+  const rowEnd = indices[0] - 1;
+  const colEnd = indices[1] - 1;
+
+  return rows[rowEnd]?.cells[colEnd];
+};
+
+const getAreaIndices = (startCell: HTMLElement, endCell?: HTMLElement): CellAreaIndices[] | null => {
+  if (!startCell) return;
+  const start: CellAreaIndices = getCellIndices(startCell);
+  let end = getCellIndices(endCell);
+  if (end) {
+    const temp = Array.from(start);
+    if (end[0] < start[0]) {
+      start[0] = end[0];
+      end[0] = temp[0];
+    }
+    if (end[1] < start[1]) {
+      start[1] = end[1];
+      end[1] = temp[1];
+    }
+
+    end[0] += 1;
+    end[1] += 1;
+  } else {
+    end = [start[0] + 1, start[1] + 1];
+  }
+  return [start, end];
+};
+
+const clearArea = (area: CellArea) => {
+  area.coord = initAreaCoord();
+  area.indices = [];
+  area.data = initAreaData();
+};
+
+const getPureExtensionAreaTip = (extensionArea: CellArea, values: any[][], cell: HTMLElement) => {
+  if (!values?.length || !extensionArea.drag.dragging) return null;
+  const rect = extensionArea.coord.rect;
+  const orientation = extensionArea.coord.orientation;
+
+  let left = undefined;
+  let top = undefined;
+  let row = null;
+  let value = null;
+
+  if (orientation.includes("top")) {
+    top = rect.top;
+    row = values[0];
+  } else {
+    top = rect.top + rect.height;
+    row = values[values.length - 1];
+  }
+
+  if (orientation.includes("left")) {
+    left = rect.left;
+    value = row[0];
+  } else {
+    left = rect.left + rect.width;
+    value = row[row.length - 1];
+  }
+
+  const tbody = cell?.closest("tbody");
+  const tbodyRect = getElementRect(tbody);
+
+  const style: any = {
+    left: undefined,
+    right: undefined,
+    top: undefined,
+    bottom: undefined,
+  };
+
+  const offset = 5;
+
+  if (top >= tbodyRect?.height) {
+    style.bottom = offset;
+  } else {
+    style.top = top + offset;
+  }
+
+  if (left >= tbodyRect?.width) {
+    style.right = offset;
+  } else {
+    style.left = left + offset;
+  }
+
+  return {
+    style: getAreaTipRectStyle(style),
+    value,
+  };
+};
+
+class MainAreaDao implements CellAreaDao {
+  area: CellArea;
+
+  constructor(area: CellArea) {
+    this.area = area;
+  }
+
+  setLayout(startCell: HTMLElement, endCell: HTMLElement | number[] = null) {
+    const _endCell = Array.isArray(endCell) ? getEndCellByIndices(startCell, endCell) : endCell;
+    this.area.coord = calcMainAreaCoord(startCell, _endCell);
+  }
+
+  getLayout() {
+    return this.area.coord;
+  }
+
+  getIndices() {
+    return this.area.indices;
+  }
+
+  setIndices(startCell: HTMLElement, endCell: HTMLElement | number[] = null) {
+    const _endCell = Array.isArray(endCell) ? getEndCellByIndices(startCell, endCell) : endCell;
+    this.area.indices = getAreaIndices(startCell, _endCell);
+  }
+
+  setData(table: TableOption, indices: number[][]) {
+    this.area.data = getCellAreaDataByIndices(table, indices);
+  }
+
+  getData() {
+    return this.area.data;
+  }
+
+  setDragging(value: boolean) {
+    this.area.drag.dragging = value;
+  }
+
+  isDragging() {
+    return this.area.drag.dragging;
+  }
+
+  clear() {
+    clearArea(this.area);
+  }
+
+  setArea(table: TableOption, startCell: HTMLElement, endCell?: HTMLElement | number[]) {
+    this.setLayout(startCell, endCell);
+    this.setIndices(startCell, endCell);
+    this.setData(table, this.getIndices());
+  }
+
+  setAreaFrom(area: CellArea) {
+    const { coord, data, indices } = area;
+    this.area.coord = { ...coord };
+    this.area.indices = [...indices];
+    this.area.data = { ...data };
+  }
+}
+
+class ExtensionAreaDao implements CellAreaDao {
+  area: CellArea;
+
+  constructor(area: CellArea) {
+    this.area = area;
+  }
+
+  setLayout(mainCoord: CellAreaCoord, endCell: HTMLElement) {
+    this.area.coord = calcExtensionAreaCoord(mainCoord, endCell);
+  }
+
+  getLayout() {
+    return this.area.coord;
+  }
+
+  setIndices(mainIndices: number[][], endCell: HTMLElement, orientation: CellAreaOrientation[]) {
+    this.area.indices = calcExtensionAreaIndices(mainIndices, endCell, orientation);
+  }
+
+  getIndices() {
+    return this.area.indices;
+  }
+
+  setData(table: TableOption, indices: number[][]) {
+    this.area.data = getCellAreaDataByIndices(table, indices);
+  }
+
+  getData() {
+    return this.area.data;
+  }
+
+  setDragging(value: boolean) {
+    this.area.drag.dragging = value;
+  }
+
+  isDragging() {
+    return this.area.drag.dragging;
+  }
+
+  clear() {
+    clearArea(this.area);
+  }
+
+  setArea(table: TableOption, mainArea: CellArea, endCell: HTMLElement) {
+    this.setLayout(mainArea.coord, endCell);
+    this.setIndices(mainArea.indices, endCell, this.area.coord.orientation);
+    this.setData(table, this.getIndices());
+  }
+}
+
+class CopyAreaDao implements CellAreaDao {
+  area: CellArea;
+
+  constructor(area: CellArea) {
+    this.area = area;
+  }
+
+  setLayout(mainCoord: CellAreaCoord) {
+    const { rect } = mainCoord;
+    this.area.coord.rect = { ...rect };
+  }
+
+  getLayout() {
+    return this.area.coord;
+  }
+
+  setIndices(mainIndices: CellAreaIndices[]) {
+    this.area.indices = mainIndices;
+  }
+
+  getIndices() {
+    return this.area.indices;
+  }
+
+  setData(mianData: CellAreaData) {
+    this.area.data = mianData;
+  }
+
+  getData() {
+    return this.area.data;
+  }
+
+  setDragging(value: boolean) {
+    this.area.drag.dragging = value;
+  }
+
+  isDragging() {
+    return this.area.drag.dragging;
+  }
+
+  clear() {
+    clearArea(this.area);
+  }
+}
+
+class CellAreasDao {
   table = {} as TableOption;
+
   selectCell: CellOption = null;
-  main = createMainArea();
-  extension = createExtensionArea();
-  copy = createCopyArea();
-  extended: boolean = false;
+  mainArea: MainAreaDao;
+  extensionArea: ExtensionAreaDao;
+  copyArea: CopyAreaDao;
+
+  constructor() {
+    const main = createMainArea();
+    const extension = createExtensionArea();
+    const copy = createCopyArea();
+    this.mainArea = new MainAreaDao(main);
+    this.extensionArea = new ExtensionAreaDao(extension);
+    this.copyArea = new CopyAreaDao(copy);
+  }
 
   setTableInfo(table: Partial<TableOption>) {
     const data = getCellAreaDataSource(table);
@@ -372,140 +631,35 @@ export class CellAreasStore {
     this.selectCell = startCell;
   }
 
-  getSelectCellStyle() {
-    if (!this.selectCell?.cell) return {};
+  getSelectCellRect() {
+    if (!this.selectCell?.cell) return {} as CellAreaRect;
     const rect = getElementRect(this.selectCell.cell);
-    return getAreaRectStyle(rect);
+    return rect;
   }
 
-  setMainArea(endCell?: CellOption) {
-    if (!endCell || this.selectCell === endCell) {
-      this.extended = false;
-    } else {
-      this.extended = true;
-    }
-    this.main.coord = calcMainAreaCoord(this.selectCell, endCell);
-    this.main.data = calcMainAreaData(this.table, this.selectCell, endCell);
+  setMainArea(endCell?: HTMLElement | number[]) {
+    this.mainArea.setArea(this.table, this.selectCell?.cell, endCell);
   }
 
-  setMainAreaDragging(value: boolean) {
-    this.main.drag.dragging = value;
-  }
-
-  getMainAreaDragging() {
-    return this.main.drag.dragging;
-  }
-
-  getMainAreaStyle() {
-    return getAreaRectStyle(this.main.coord.rect);
-  }
-
-  clearMainArea() {
-    this.main.coord = initAreaCoord();
-    this.main.data = initAreaData();
-  }
-
-  isExtended() {
-    return this.extended;
-  }
-
-  setExtensionArea(endCell: CellOption) {
-    const coord = calcExtensionAreaCoord(this.main, endCell);
-    this.extension.coord = coord;
-    this.extension.data = calcExtensionAreaData(this.table, this.main, endCell, coord.orientation);
-  }
-
-  getExtensionAreaStyle() {
-    return getAreaRectStyle(this.extension.coord.rect);
-  }
-
-  setExtensionAreaDragging(value: boolean) {
-    this.extension.drag.dragging = value;
-  }
-
-  getExtensionAreaDragging() {
-    return this.extension.drag.dragging;
+  setExtensionArea(endCell: HTMLElement) {
+    this.extensionArea.setArea(this.table, this.mainArea.area, endCell);
   }
 
   setCopyArea() {
-    this.copy.coord = { ...this.main.coord };
-  }
-
-  getCopyAreaDragging() {
-    return this.copy.drag.dragging;
-  }
-
-  setCopyAreaDragging(value: boolean) {
-    this.copy.drag.dragging = value;
-  }
-
-  getCopyAreaStyle() {
-    return getAreaRectStyle(this.copy.coord.rect);
-  }
-
-  extendMainArea() {
-    this.extended = true;
-    this.main.coord = { ...this.extension.coord };
-    this.main.data = { ...this.extension.data };
-  }
-
-  clearExtensionArea() {
-    this.extension.coord = initAreaCoord();
-    this.extension.data = initAreaData();
-  }
-
-  clearCopyArea() {
-    this.copy.coord = initAreaCoord();
-    this.copy.data = initAreaData();
+    this.copyArea.setLayout(this.mainArea.getLayout());
   }
 
   getPureExtensionAreaData() {
-    return calcPureExtensionAreaData(this.table, this.main, this.extension);
+    return calcPureExtensionAreaData(this.table, this.mainArea.area, this.extensionArea.area);
   }
 
-  setAreaCells(startCell: CellOption, source: any[][]) {
-    return setAreaCells(this.table, startCell, source);
+  getPureExtensionAreaTip(source: any[][]) {
+    return getPureExtensionAreaTip(this.extensionArea.area, source, this.selectCell?.cell);
+  }
+
+  setCellsData(startCell: CellOption, source: any[][]) {
+    return setCellsData(this.table, startCell, source);
   }
 }
 
-export const getCellAreaStyle = (area: CellArea) => {
-  if (!area) return {};
-  const { left, top, width, height } = area.coord.rect;
-  return {
-    left: left + "px",
-    top: top + "px",
-    width: width + "px",
-    height: height + "px",
-    display: width || height ? "block" : "none",
-  };
-};
-
-export const getCellExtensionAreaTip = (extensionArea: CellArea, values: any[][]) => {
-  if (!values?.length || !extensionArea.drag.dragging) return null;
-
-  const last = values[values.length - 1];
-  const rect = extensionArea.coord.rect;
-  const orientation = extensionArea.coord.orientation;
-  let left = 0;
-  const top = rect.top + rect.height + 5;
-  let value = null;
-  if (orientation.includes("left")) {
-    left = rect.left;
-    value = last[0];
-  } else {
-    left = rect.left + rect.width + 5;
-    value = last[last.length - 1];
-  }
-
-  return {
-    style: {
-      left: left + "px",
-      top: top + "px",
-    },
-    value,
-  };
-};
-
-export const createCellAreas = () => {
-  return new CellAreasStore();
-};
+export { CellAreasDao, getAreaRectStyle };
