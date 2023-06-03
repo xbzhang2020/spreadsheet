@@ -94,7 +94,7 @@ const createCopyArea = () => {
 };
 
 const getCellValueDefault = (row: BaseObject, column: ColumnOption) => row[column.key];
-const setCellValueDafault = (row: BaseObject, column: ColumnOption, value: any) => {
+const setCellValueDafault = (row: BaseObject, column: ColumnOption, value: unknown) => {
   row[column.key] = value;
 };
 
@@ -116,7 +116,7 @@ const getCellAreaDataByIndices = (table: TableOption, indices: number[][]) => {
   return data;
 };
 
-const setCellsData = (table: TableOption, startCell: CellOption, source: any[][]) => {
+const setCellsData = (table: TableOption, startCell: CellOption, source: unknown[][]) => {
   if (!source.length || !source[0]?.length) return;
   const setCellValue = table.setCellValue || setCellValueDafault;
 
@@ -248,11 +248,73 @@ const calcExtensionAreaCoord = (mainCoord: CellAreaCoord, endCell: HTMLElement) 
   return coord;
 };
 
-const calcPureExtensionAreaData = (table: TableOption, mainArea: CellArea, extensionArea: CellArea) => {
-  const { data: mainAreaData } = mainArea;
-  const { data: extensionAreaData } = extensionArea;
-
+const getPureExtensionAreaTip = (extensionArea: CellArea, values: unknown[][], cell: HTMLElement) => {
+  if (!values?.length || !extensionArea.drag.dragging) return null;
+  const rect = extensionArea.coord.rect;
   const orientation = extensionArea.coord.orientation;
+
+  let left = undefined;
+  let top = undefined;
+  let row = null;
+  let value = null;
+
+  if (orientation.includes("top")) {
+    top = rect.top;
+    row = values[0];
+  } else {
+    top = rect.top + rect.height;
+    row = values[values.length - 1];
+  }
+
+  if (orientation.includes("left")) {
+    left = rect.left;
+    value = row[0];
+  } else {
+    left = rect.left + rect.width;
+    value = row[row.length - 1];
+  }
+
+  const tbody = cell?.closest("tbody");
+  const tbodyRect = getElementRect(tbody);
+
+  const style: any = {
+    left: undefined,
+    right: undefined,
+    top: undefined,
+    bottom: undefined,
+  };
+
+  const offset = 5;
+
+  if (top >= tbodyRect?.height) {
+    style.bottom = offset;
+  } else {
+    style.top = top + offset;
+  }
+
+  if (left >= tbodyRect?.width) {
+    style.right = offset;
+  } else {
+    style.left = left + offset;
+  }
+
+  return {
+    style: getAreaTipRectStyle(style),
+    value,
+  };
+};
+
+const calcPureExtensionArea = (table: TableOption, mainArea: CellArea, extensionArea: CellArea) => {
+  // const res = {
+  //   values: [],
+  //   indices: [],
+  //   tipValue: null,
+  //   tipStyle: {},
+  // };
+
+  const { data: mainAreaData, indices: mainIndices } = mainArea;
+  const { data: extensionAreaData, indices: extensionIndics } = extensionArea;
+
   const getCellValue = table.getCellValue || getCellValueDefault;
 
   const data: CellAreaData = {
@@ -261,11 +323,17 @@ const calcPureExtensionAreaData = (table: TableOption, mainArea: CellArea, exten
     values: [],
   };
 
-  if (orientation.includes("left") || orientation.includes("right")) {
+  const isLeft = extensionIndics[0][1] < mainIndices[0][1];
+  const isRight = extensionIndics[1][1] > mainIndices[1][1];
+  const isTop = extensionIndics[0][0] < mainIndices[0][0];
+  const isBottom = extensionIndics[1][0] > mainIndices[1][0];
+  // const indices = [Array.from(mainIndices[0]), Array.from(mainIndices[1])];
+
+  if (isLeft || isRight) {
     const destColumns = extensionAreaData.columns.filter(item => !mainAreaData.columns.includes(item));
     mainAreaData.rows.forEach(row => {
       const sourceValues = mainAreaData.columns.map(column => getCellValue(row, column));
-      const destValues = getDestValues(sourceValues, destColumns.length, orientation.includes("left"));
+      const destValues = getDestValues(sourceValues, destColumns.length, isLeft);
       data.values.push(destValues);
     });
     data.rows = mainAreaData.rows;
@@ -273,7 +341,7 @@ const calcPureExtensionAreaData = (table: TableOption, mainArea: CellArea, exten
     return data;
   }
 
-  if (orientation.includes("top") || orientation.includes("bottom")) {
+  if (isTop || isBottom) {
     const destRows = extensionAreaData.rows.filter(item => !mainAreaData.rows.includes(item));
     destRows.forEach(() => {
       data.values.push([]);
@@ -281,7 +349,7 @@ const calcPureExtensionAreaData = (table: TableOption, mainArea: CellArea, exten
 
     mainAreaData.columns.forEach((column, colIndex) => {
       const sourceValues = mainAreaData.rows.map(row => getCellValue(row, column));
-      const destValues = getDestValues(sourceValues, destRows.length, orientation.includes("top"));
+      const destValues = getDestValues(sourceValues, destRows.length, isTop);
       destValues.forEach((value, rowIndex) => {
         data.values[rowIndex][colIndex] = value;
       });
@@ -297,7 +365,7 @@ const getCellAreaDataSource = (table: Partial<TableOption>) => {
   const { dataSource, expandRowKeys, rowKey } = table;
 
   if (!expandRowKeys || expandRowKeys?.length < 1) return dataSource;
-  const tableData: any[] = [];
+  const tableData: unknown[] = [];
   traverseTree(dataSource, item => {
     const isRoot = dataSource.find(row => row[rowKey] === item[rowKey]);
     if (isRoot) {
@@ -390,62 +458,6 @@ const clearArea = (area: CellArea) => {
   area.coord = initAreaCoord();
   area.indices = [];
   area.data = initAreaData();
-};
-
-const getPureExtensionAreaTip = (extensionArea: CellArea, values: any[][], cell: HTMLElement) => {
-  if (!values?.length || !extensionArea.drag.dragging) return null;
-  const rect = extensionArea.coord.rect;
-  const orientation = extensionArea.coord.orientation;
-
-  let left = undefined;
-  let top = undefined;
-  let row = null;
-  let value = null;
-
-  if (orientation.includes("top")) {
-    top = rect.top;
-    row = values[0];
-  } else {
-    top = rect.top + rect.height;
-    row = values[values.length - 1];
-  }
-
-  if (orientation.includes("left")) {
-    left = rect.left;
-    value = row[0];
-  } else {
-    left = rect.left + rect.width;
-    value = row[row.length - 1];
-  }
-
-  const tbody = cell?.closest("tbody");
-  const tbodyRect = getElementRect(tbody);
-
-  const style: any = {
-    left: undefined,
-    right: undefined,
-    top: undefined,
-    bottom: undefined,
-  };
-
-  const offset = 5;
-
-  if (top >= tbodyRect?.height) {
-    style.bottom = offset;
-  } else {
-    style.top = top + offset;
-  }
-
-  if (left >= tbodyRect?.width) {
-    style.right = offset;
-  } else {
-    style.left = left + offset;
-  }
-
-  return {
-    style: getAreaTipRectStyle(style),
-    value,
-  };
 };
 
 class MainAreaDao implements CellAreaDao {
@@ -650,14 +662,14 @@ class CellAreasDao {
   }
 
   getPureExtensionAreaData() {
-    return calcPureExtensionAreaData(this.table, this.mainArea.area, this.extensionArea.area);
+    return calcPureExtensionArea(this.table, this.mainArea.area, this.extensionArea.area);
   }
 
-  getPureExtensionAreaTip(source: any[][]) {
+  getPureExtensionAreaTip(source: unknown[][]) {
     return getPureExtensionAreaTip(this.extensionArea.area, source, this.selectCell?.cell);
   }
 
-  setCellsData(startCell: CellOption, source: any[][]) {
+  setCellsData(startCell: CellOption, source: unknown[][]) {
     return setCellsData(this.table, startCell, source);
   }
 }

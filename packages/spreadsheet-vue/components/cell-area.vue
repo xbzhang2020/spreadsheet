@@ -23,8 +23,8 @@ import { copy2Clipboard, json2Csv, csv2Json } from "../utils/process";
 
 export type UseMountParams = {
   isParentMounted: Ref<boolean>;
-  getTableBodyConatiner: Function;
-  getCellAreaContainer: Function;
+  getTableBodyConatiner: () => HTMLElement;
+  getCellAreaContainer: () => HTMLElement;
 };
 
 const useMount = (params: UseMountParams) => {
@@ -55,7 +55,7 @@ export default defineComponent({
     },
     getTableBodyContainer: {
       default: null,
-      type: Function,
+      type: Function as PropType<() => HTMLElement>,
     },
     mouseEnteredCell: {
       default: null,
@@ -203,7 +203,7 @@ export default defineComponent({
       window.addEventListener("mousemove", handleMousemove);
       window.addEventListener("mouseup", handleMouseup);
       window.addEventListener("keydown", handleKeydown);
-      document.body.addEventListener("paste", handlePaste);
+      document.addEventListener("paste", handlePaste);
       window.addEventListener("dblclick", handleDbClick);
     });
 
@@ -213,7 +213,7 @@ export default defineComponent({
       window.removeEventListener("mouseup", handleMouseup);
       window.removeEventListener("keydown", handleKeydown);
       window.removeEventListener("dblclick", handleDbClick);
-      document.body.removeEventListener("paste", handlePaste);
+      document.removeEventListener("paste", handlePaste);
     });
 
     return {
