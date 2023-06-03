@@ -180,7 +180,7 @@ export default defineComponent({
       if (!cellAreas.selectCell) return;
 
       const clipboardData = csv2Json(event.clipboardData);
-      const indices = cellAreas.setCellsData(cellAreas.selectCell as CellOption, clipboardData);
+      const indices = cellAreas.setCellsData(cellAreas.selectCell as unknown as CellOption, clipboardData);
       cellAreas.setMainArea(indices[1]);
     };
 
