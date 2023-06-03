@@ -39,5 +39,10 @@
       "require": "./lib/spreadsheet.umd.cjs"
     }
   },
-  "typings": "./"
+  "typings": "./",
+  "lint-staged": {
+    "*.{js,vue,ts,js,tsx,jsx}": [
+      "eslint"
+    ]
+  }
 }
