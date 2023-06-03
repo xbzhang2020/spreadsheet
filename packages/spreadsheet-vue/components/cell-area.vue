@@ -21,7 +21,7 @@ import { defineComponent, PropType, watchEffect, Ref, computed, ref, onMounted, 
 import { CellAreasDao, getAreaRectStyle } from "../model/cell-area";
 import { copy2Clipboard, json2Csv, csv2Json } from "../utils/process";
 
-type UseMountParams = {
+export type UseMountParams = {
   isParentMounted: Ref<boolean>;
   getTableBodyConatiner: Function;
   getCellAreaContainer: Function;
