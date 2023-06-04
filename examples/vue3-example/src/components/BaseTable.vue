@@ -25,7 +25,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from "vue";
-import { CellArea, getElTableBodyContainer } from "spreadsheet-vue";
+import { CellArea, getElTableBodyContainer } from "spreadtable-vue";
 
 const getColumnKeys = (columnLength: number) => {
   const res = [];
