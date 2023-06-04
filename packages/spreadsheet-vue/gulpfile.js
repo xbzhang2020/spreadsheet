@@ -3,6 +3,12 @@ import gulpSass from "gulp-sass";
 import gulp from "gulp";
 import { spawn } from "child_process";
 
+const sass = gulpSass(dartSass);
+const { src, dest, series } = gulp;
+
+const rootPath = ".";
+const stylePath = "theme-chalk";
+
 export async function run(command, path) {
   const [cmd, ...args] = command.split(" ");
   return new Promise((resolve, reject) => {
@@ -17,18 +23,15 @@ export async function run(command, path) {
   });
 }
 
-const sass = gulpSass(dartSass);
-const { src, dest, series } = gulp;
-
 export async function buildComponents() {
-  return run("vite build", ".");
+  return run("vite build", rootPath);
 }
 
 export async function buildStyles() {
-  return src("./theme-chalk/**/*.scss")
+  return src(`${rootPath}/${stylePath}/**/*.scss`)
     .pipe(sass().on("error", sass.logError))
-    .pipe(dest("./es/theme-chalk"))
-    .pipe(dest("./lib/theme-chalk"));
+    .pipe(dest(`${rootPath}/es/${stylePath}`))
+    .pipe(dest(`${rootPath}/lib/${stylePath}`));
 }
 
 export default series(buildComponents, buildStyles);
