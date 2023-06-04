@@ -1,10 +1,8 @@
 import dartSass from "sass";
 import gulpSass from "gulp-sass";
 import gulp from "gulp";
-
 import { spawn } from "child_process";
 
-// 运行命令
 export async function run(command, path) {
   const [cmd, ...args] = command.split(" ");
   return new Promise((resolve, reject) => {
