@@ -108,8 +108,12 @@ export default defineComponent({
       return rowSpan > 1 || colSpan > 1;
     });
 
-    const pureExtensionAreaData: Ref<CellAreaData> = ref(null);
-    const extensionAreaTip = computed(() => cellAreas.getPureExtensionAreaTip(pureExtensionAreaData.value?.values));
+    const pureExtensionAreaValues = computed(() => cellAreas.getPureExtensionAreaValues());
+
+    const extensionAreaTip = computed(() => {
+      if (!pureExtensionAreaValues.value) return null;
+      return cellAreas.getPureExtensionAreaTip(pureExtensionAreaValues.value.values);
+    });
 
     const handleMousedown = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -132,7 +136,6 @@ export default defineComponent({
       }
       if (cellAreas.extensionArea.isDragging()) {
         cellAreas.setExtensionArea(currentCell.value?.cell);
-        pureExtensionAreaData.value = cellAreas.getPureExtensionAreaData();
         return;
       }
     };
@@ -145,17 +148,12 @@ export default defineComponent({
 
       if (cellAreas.extensionArea.isDragging()) {
         cellAreas.extensionArea.setDragging(false);
-        if (!pureExtensionAreaData.value) return;
-        const startCell: CellOption = {
-          row: pureExtensionAreaData.value.rows[0],
-          column: pureExtensionAreaData.value.columns[0],
-          cell: null,
-        };
+        if (!pureExtensionAreaValues.value) return;
+        const { indices, values } = pureExtensionAreaValues.value;
 
-        cellAreas.setCellsData(startCell, pureExtensionAreaData.value.values);
+        cellAreas.setCellsData(indices[0], values);
         cellAreas.mainArea.setAreaFrom(cellAreas.extensionArea.area);
         cellAreas.extensionArea.clear();
-        pureExtensionAreaData.value = null;
         return;
       }
 
@@ -180,7 +178,7 @@ export default defineComponent({
       if (!cellAreas.selectCell) return;
 
       const clipboardData = csv2Json(event.clipboardData);
-      const indices = cellAreas.setCellsData(cellAreas.selectCell as unknown as CellOption, clipboardData);
+      const indices = cellAreas.setCellsData(cellAreas.selectCell?.cell as unknown as HTMLElement, clipboardData);
       cellAreas.setMainArea(indices[1]);
     };
 
@@ -221,12 +219,12 @@ export default defineComponent({
       cellAreas,
       handleDragBtnMousedown,
       extensionAreaTip,
-      pureExtensionAreaData,
       selectCellStyle,
       mainAreaStyle,
       extensionAreaStyle,
       copyAreaStyle,
       extended,
+      pureExtensionAreaValues,
     };
   },
 });

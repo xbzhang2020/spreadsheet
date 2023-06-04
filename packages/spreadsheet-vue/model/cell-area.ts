@@ -116,14 +116,15 @@ const getCellAreaDataByIndices = (table: TableOption, indices: number[][]) => {
   return data;
 };
 
-const setCellsData = (table: TableOption, startCell: CellOption, source: unknown[][]) => {
+const setCellsData = (table: TableOption, startIndices: CellAreaIndices, source: unknown[][]) => {
   if (!source.length || !source[0]?.length) return;
   const setCellValue = table.setCellValue || setCellValueDafault;
 
-  const colStart = table.columns.findIndex(col => col.key === startCell.column.key);
-  const colEnd = Math.min(colStart + source[0].length, table.columns.length);
-  const rowStart = table.data.findIndex(row => row === startCell.row);
+  const rowStart = startIndices[0];
   const rowEnd = Math.min(rowStart + source.length, table.data.length);
+
+  const colStart = startIndices[1];
+  const colEnd = Math.min(colStart + source[0].length, table.columns.length);
 
   const data: CellAreaData = {
     rows: table.data.slice(rowStart, rowEnd),
@@ -304,61 +305,68 @@ const getPureExtensionAreaTip = (extensionArea: CellArea, values: unknown[][], c
   };
 };
 
-const calcPureExtensionArea = (table: TableOption, mainArea: CellArea, extensionArea: CellArea) => {
-  // const res = {
-  //   values: [],
-  //   indices: [],
-  //   tipValue: null,
-  //   tipStyle: {},
-  // };
+const calcPureExtensionAreaValues = (table: TableOption, mainArea: CellArea, extensionArea: CellArea) => {
+  const {
+    data: mainAreaData,
+    indices: [mainStart, mainEnd],
+  } = mainArea;
+  const {
+    indices: [extensionStart, extensionEnd],
+  } = extensionArea;
+  if (!mainStart || !mainEnd || !extensionStart || !extensionEnd) return null;
 
-  const { data: mainAreaData, indices: mainIndices } = mainArea;
-  const { data: extensionAreaData, indices: extensionIndics } = extensionArea;
-
+  const isLeft = extensionStart[1] < mainStart[1];
+  const isRight = extensionEnd[1] > mainEnd[1];
+  const isTop = extensionStart[0] < mainStart[0];
+  const isBottom = extensionEnd[0] > mainEnd[0];
+  const start = Array.from(mainStart);
+  const end = Array.from(mainEnd);
+  const indices = [start, end] as CellAreaIndices[];
+  const values: unknown[][] = [];
   const getCellValue = table.getCellValue || getCellValueDefault;
 
-  const data: CellAreaData = {
-    rows: [],
-    columns: [],
-    values: [],
-  };
-
-  const isLeft = extensionIndics[0][1] < mainIndices[0][1];
-  const isRight = extensionIndics[1][1] > mainIndices[1][1];
-  const isTop = extensionIndics[0][0] < mainIndices[0][0];
-  const isBottom = extensionIndics[1][0] > mainIndices[1][0];
-  // const indices = [Array.from(mainIndices[0]), Array.from(mainIndices[1])];
-
-  if (isLeft || isRight) {
-    const destColumns = extensionAreaData.columns.filter(item => !mainAreaData.columns.includes(item));
-    mainAreaData.rows.forEach(row => {
-      const sourceValues = mainAreaData.columns.map(column => getCellValue(row, column));
-      const destValues = getDestValues(sourceValues, destColumns.length, isLeft);
-      data.values.push(destValues);
-    });
-    data.rows = mainAreaData.rows;
-    data.columns = destColumns;
-    return data;
+  // 获取 indices
+  if (isLeft) {
+    start[1] = extensionStart[1];
+    end[1] = mainStart[1];
+  } else if (isRight) {
+    start[1] = mainEnd[1];
+    end[1] = extensionEnd[1];
+  } else if (isTop) {
+    start[0] = extensionStart[0];
+    end[0] = mainStart[0];
+  } else if (isBottom) {
+    start[0] = mainEnd[0];
+    end[0] = extensionEnd[0];
   }
 
-  if (isTop || isBottom) {
-    const destRows = extensionAreaData.rows.filter(item => !mainAreaData.rows.includes(item));
-    destRows.forEach(() => {
-      data.values.push([]);
+  // 获取 values
+  if (isLeft || isRight) {
+    const colLength = end[1] - start[1];
+    mainAreaData.rows.forEach(row => {
+      const sourceValues = mainAreaData.columns.map(column => getCellValue(row, column));
+      const destValues = getDestValues(sourceValues, colLength, isLeft);
+      values.push(destValues);
     });
+  } else if (isTop || isBottom) {
+    const rowLength = end[0] - start[0];
+    for (let i = 0; i < rowLength; i++) {
+      values.push([]);
+    }
 
     mainAreaData.columns.forEach((column, colIndex) => {
       const sourceValues = mainAreaData.rows.map(row => getCellValue(row, column));
-      const destValues = getDestValues(sourceValues, destRows.length, isTop);
+      const destValues = getDestValues(sourceValues, rowLength, isTop);
       destValues.forEach((value, rowIndex) => {
-        data.values[rowIndex][colIndex] = value;
+        values[rowIndex][colIndex] = value;
       });
     });
-    data.rows = destRows;
-    data.columns = mainAreaData.columns;
   }
 
-  return data;
+  return {
+    indices,
+    values,
+  };
 };
 
 const getCellAreaDataSource = (table: Partial<TableOption>) => {
@@ -661,16 +669,17 @@ class CellAreasDao {
     this.copyArea.setLayout(this.mainArea.getLayout());
   }
 
-  getPureExtensionAreaData() {
-    return calcPureExtensionArea(this.table, this.mainArea.area, this.extensionArea.area);
+  getPureExtensionAreaValues() {
+    return calcPureExtensionAreaValues(this.table, this.mainArea.area, this.extensionArea.area);
   }
 
   getPureExtensionAreaTip(source: unknown[][]) {
     return getPureExtensionAreaTip(this.extensionArea.area, source, this.selectCell?.cell);
   }
 
-  setCellsData(startCell: CellOption, source: unknown[][]) {
-    return setCellsData(this.table, startCell, source);
+  setCellsData(startCell: HTMLElement | CellAreaIndices, source: unknown[][]) {
+    const indices = Array.isArray(startCell) ? startCell : getCellIndices(startCell);
+    return setCellsData(this.table, indices, source);
   }
 }
 
