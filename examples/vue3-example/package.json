@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "element-plus": "^2.3.5",
-    "spreadsheet-vue": "workspace:^",
+    "spreadtable-vue": "0.1.0-alpha.1",
     "vue": "^3.2.47"
   },
   "devDependencies": {

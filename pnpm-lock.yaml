@@ -18,36 +18,14 @@ importers:
         specifier: ^2.8.8
         version: registry.npmmirror.com/prettier@2.8.8
 
-  examples/vite-project:
-    dependencies:
-      spreadsheet-vue:
-        specifier: workspace:^
-        version: link:../../packages/spreadsheet-vue
-      vue:
-        specifier: ^3.2.47
-        version: 3.2.47
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: ^4.1.0
-        version: 4.1.0(vite@4.3.2)(vue@3.2.47)
-      typescript:
-        specifier: ^5.0.2
-        version: 5.0.2
-      vite:
-        specifier: ^4.3.2
-        version: 4.3.2(@types/node@20.2.1)(sass@1.62.1)
-      vue-tsc:
-        specifier: ^1.4.2
-        version: 1.4.2(typescript@5.0.2)
-
   examples/vue3-example:
     dependencies:
       element-plus:
         specifier: ^2.3.5
         version: 2.3.5(vue@3.2.47)
-      spreadsheet-vue:
-        specifier: workspace:^
-        version: link:../../packages/spreadsheet-vue
+      spreadtable-vue:
+        specifier: 0.1.0-alpha.1
+        version: 0.1.0-alpha.1
       vue:
         specifier: ^3.2.47
         version: 3.2.47
@@ -65,7 +43,7 @@ importers:
         specifier: ^1.4.2
         version: 1.4.2(typescript@5.0.2)
 
-  packages/spreadsheet-vue:
+  packages/spreadtable-vue:
     dependencies:
       '@vueuse/core':
         specifier: ^10.1.2
@@ -4618,6 +4596,16 @@ packages:
     dependencies:
       extend-shallow: 3.0.2
     dev: true
+
+  /spreadtable-vue@0.1.0-alpha.1:
+    resolution: {integrity: sha512-5VxuiP3ldFQ2mIy/oD8R0ubKRl+lQI3Kiq8BXVCKsjFwadHEF9CKspkMRHKmZjRxeWkCRThHjbqgQlJ+GX6FDg==}
+    dependencies:
+      '@vueuse/core': 10.1.2(vue@3.2.47)
+      element-plus: 2.3.5(vue@3.2.47)
+      vue: 3.2.47
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+    dev: false
 
   /sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
