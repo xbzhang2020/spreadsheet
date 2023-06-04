@@ -1,5 +1,5 @@
 {
-  "name": "spreadsheet-vue",
+  "name": "spreadtable-vue",
   "version": "0.1.0-alpha.1",
   "type": "module",
   "scripts": {
@@ -8,6 +8,9 @@
     "preview": "vite preview",
     "lint": "eslint --ext .js,.ts,.vue ./"
   },
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "@vueuse/core": "^10.1.2",
     "element-plus": "^2.3.5",
@@ -43,7 +46,7 @@
       "require": "./lib/index.umd.cjs"
     }
   },
-  "typings": "./",
+  "typings": "./lib/index.d.ts",
   "lint-staged": {
     "*.{js,vue,ts,js,tsx,jsx}": [
       "eslint"
