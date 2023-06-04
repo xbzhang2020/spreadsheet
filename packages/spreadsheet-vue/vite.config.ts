@@ -8,19 +8,24 @@ export default defineConfig({
   plugins: [vue()],
   build: {
     outDir: "lib",
+    // minify: false,
     lib: {
-      entry: resolve(__dirname, "./index.ts"),
-      name: "Spreadsheet",
-      fileName: "index",
+      entry: "./index.ts",
     },
     rollupOptions: {
       external: ["vue"],
-      output: {
-        dir: "lib",
-        globals: {
-          vue: "Vue",
+      input: ["index.ts"],
+      output: [
+        {
+          format: "es",
+          dir: "es",
         },
-      },
+        {
+          format: "umd",
+          dir: "lib",
+          name: "SpreadSheet",
+        },
+      ],
     },
   },
   resolve: {

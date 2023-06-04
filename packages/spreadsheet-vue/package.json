@@ -35,8 +35,8 @@
   },
   "exports": {
     ".": {
-      "import": "./lib/spreadsheet.js",
-      "require": "./lib/spreadsheet.umd.cjs"
+      "import": "./es/index.js",
+      "require": "./lib/index.umd.cjs"
     }
   },
   "typings": "./",
