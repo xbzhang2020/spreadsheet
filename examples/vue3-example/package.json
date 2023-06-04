@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "element-plus": "^2.3.5",
     "spreadsheet-vue": "workspace:^",
     "vue": "^3.2.47"
   },

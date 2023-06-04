@@ -40,6 +40,31 @@ importers:
         specifier: ^1.4.2
         version: 1.4.2(typescript@5.0.2)
 
+  examples/vue3-example:
+    dependencies:
+      element-plus:
+        specifier: ^2.3.5
+        version: 2.3.5(vue@3.2.47)
+      spreadsheet-vue:
+        specifier: workspace:^
+        version: link:../../packages/spreadsheet-vue
+      vue:
+        specifier: ^3.2.47
+        version: 3.2.47
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^4.1.0
+        version: 4.1.0(vite@4.3.2)(vue@3.2.47)
+      typescript:
+        specifier: ^5.0.2
+        version: 5.0.2
+      vite:
+        specifier: ^4.3.2
+        version: 4.3.2(@types/node@20.2.1)(sass@1.62.1)
+      vue-tsc:
+        specifier: ^1.4.2
+        version: 1.4.2(typescript@5.0.2)
+
   packages/spreadsheet-vue:
     dependencies:
       '@vueuse/core':

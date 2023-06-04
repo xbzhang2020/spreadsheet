@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // import HelloWorld from './components/HelloWorld.vue'
-import { HelloWorld } from 'spreadsheet-vue'
+// import { HelloWorld } from 'spreadsheet-vue'
 </script>
 
 <template>
@@ -12,7 +12,8 @@ import { HelloWorld } from 'spreadsheet-vue'
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a>
   </div>
-  <HelloWorld msg="Vite + Vue" />
+  <el-button>Default</el-button>
+  <!-- <HelloWorld msg="Vite + Vue" /> -->
 </template>
 
 <style scoped>

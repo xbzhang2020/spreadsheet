@@ -9,8 +9,8 @@
       "name": "vue"
     },
     {
-      "path": "../examples/vite-project",
-      "name": "vite-proejct"
+      "path": "../examples/vue3-example",
+      "name": "vue3-example"
     }
   ]
 }
