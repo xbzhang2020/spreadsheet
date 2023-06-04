@@ -29,11 +29,10 @@ export default defineConfig({
     lib: {
       entry: "./index.ts",
       name: "Spreadsheet",
-      fileName: "spreadsheet",
+      fileName: "index",
     },
     rollupOptions: {
       external: ["vue", /\.scss/],
-      input: ["index.ts"],
       output: {
         globals: {
           vue: "Vue",
