@@ -24,7 +24,7 @@ import "../theme-chalk/cell-area.scss";
 
 export type UseMountParams = {
   isParentMounted: Ref<boolean>;
-  getTableBodyConatiner: () => HTMLElement;
+  getTableBodyConatiner: () => HTMLElement | null;
   getCellAreaContainer: () => HTMLElement;
 };
 
@@ -56,7 +56,7 @@ export default defineComponent({
     },
     getTableBodyContainer: {
       default: null,
-      type: Function as PropType<() => HTMLElement>,
+      type: Function as PropType<() => HTMLElement | null>,
     },
     mouseEnteredCell: {
       default: null,
