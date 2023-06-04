@@ -17,7 +17,7 @@ type GetCellValue = (row: BaseObject, column: ColumnOption) => any;
 type SetCellValue = (row: BaseObject, column: ColumnOption, value: any) => boolean;
 
 declare interface TableOption {
-  dataSource?: any[]
+  dataSource?: any[];
   data: any[];
   columns: ColumnOption[];
   mouseEnteredCell: CellOption;

@@ -62,48 +62,46 @@ export const traverseTree = (
   });
 };
 
-
-
-export const csv2Json = (clipboardData: ClipboardEvent['clipboardData']) => {
-  const paste = clipboardData.getData('text')
-  let arr = paste.split('\r')
-  arr = paste.split('\n')
+export const csv2Json = (clipboardData: ClipboardEvent["clipboardData"]) => {
+  const paste = clipboardData.getData("text");
+  let arr = paste.split("\r");
+  arr = paste.split("\n");
   const list = arr
     .map(item => {
-      return item.split('\t').filter(con => con)
+      return item.split("\t").filter(con => con);
     })
-    .filter(item => item.length)
-  return list
-}
+    .filter(item => item.length);
+  return list;
+};
 
 export const json2Csv = (arrData: any[][]) => {
-  let csv = ''
+  let csv = "";
   for (let i = 0; i < arrData.length; i++) {
-    let rows = ''
+    let rows = "";
     for (const index in arrData[i]) {
-      const arrValue = arrData[i][index] == null ? '' : '' + arrData[i][index]
-      rows += arrValue + '\t'
+      const arrValue = arrData[i][index] == null ? "" : "" + arrData[i][index];
+      rows += arrValue + "\t";
     }
-    rows = rows.slice(0, rows.length - 1)
+    rows = rows.slice(0, rows.length - 1);
 
-    csv += rows + (arrData.length - 1 !== i ? '\r\n' : '')
+    csv += rows + (arrData.length - 1 !== i ? "\r\n" : "");
   }
-  return csv
-}
+  return csv;
+};
 
 export const copy2Clipboard = (str: string) => {
-  const el = document.createElement('textarea')
-  el.value = str
-  el.setAttribute('readonly', '')
-  el.style.position = 'absolute'
-  el.style.left = '-9999px'
-  document.body.appendChild(el)
-  const selected = document.getSelection().rangeCount > 0 ? document.getSelection().getRangeAt(0) : false
-  el.select()
-  document.execCommand('copy')
-  document.body.removeChild(el)
+  const el = document.createElement("textarea");
+  el.value = str;
+  el.setAttribute("readonly", "");
+  el.style.position = "absolute";
+  el.style.left = "-9999px";
+  document.body.appendChild(el);
+  const selected = document.getSelection().rangeCount > 0 ? document.getSelection().getRangeAt(0) : false;
+  el.select();
+  document.execCommand("copy");
+  document.body.removeChild(el);
   if (selected) {
-    document.getSelection().removeAllRanges()
-    document.getSelection().addRange(selected)
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(selected);
   }
-}
+};

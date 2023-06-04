@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint --ext .js,.ts,.vue components/"
+    "lint": "eslint --ext .js,.ts,.vue ./"
   },
   "dependencies": {
     "@vueuse/core": "^10.1.2",
