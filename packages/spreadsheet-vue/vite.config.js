@@ -28,8 +28,8 @@ export default defineConfig({
     outDir: "lib",
     lib: {
       entry: "./index.ts",
-      name: "Spreadtable",
-      fileName: "spreasdtable",
+      name: "Spreadsheet",
+      fileName: "spreadsheet",
     },
     rollupOptions: {
       external: ["vue", /\.scss/],
@@ -39,22 +39,6 @@ export default defineConfig({
           vue: "Vue",
         },
       },
-      // output: [
-      //   {
-      //     format: "es",
-      //     dir: "es",
-      //     entryFileNames: "[name].js",
-      //   },
-      //   {
-      //     format: "umd",
-      //     dir: "lib",
-      //     name: "SpreadSheet",
-      //     entryFileNames: "[name].umd.cjs",
-      //     globals: {
-      //       vue: "Vue",
-      //     },
-      //   },
-      // ],
     },
   },
   resolve: {

@@ -30,7 +30,6 @@ export async function buildComponents() {
 export async function buildStyles() {
   return src(`${rootPath}/${stylePath}/**/*.scss`)
     .pipe(sass().on("error", sass.logError))
-    .pipe(dest(`${rootPath}/es/${stylePath}`))
     .pipe(dest(`${rootPath}/lib/${stylePath}`));
 }
 
