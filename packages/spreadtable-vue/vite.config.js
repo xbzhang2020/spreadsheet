@@ -45,4 +45,7 @@ export default defineConfig({
       "@": resolve(__dirname, "."),
     },
   },
+  optimizeDeps: {
+    exclude: ["vue-demi"],
+  },
 });

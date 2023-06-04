@@ -17,7 +17,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, watchEffect, Ref, computed, ref, onMounted, onBeforeUnmount, reactive } from "vue";
+import {
+  defineComponent,
+  PropType,
+  watchEffect,
+  Ref,
+  computed,
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  reactive,
+} from "vue-demi";
 import { CellAreasDao, getAreaRectStyle } from "../model/cell-area";
 import { copy2Clipboard, json2Csv, csv2Json } from "../utils/process";
 import "../theme-chalk/cell-area.scss";
