@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "gulp",
     "preview": "vite preview",
     "lint": "eslint --ext .js,.ts,.vue ./"
   },
@@ -26,6 +26,8 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-vue": "^9.14.1",
+    "gulp": "^4.0.2",
+    "gulp-sass": "^5.1.0",
     "prettier": "^2.8.8",
     "sass": "^1.62.1",
     "typescript": "^5.0.2",

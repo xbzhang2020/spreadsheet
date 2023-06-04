@@ -20,7 +20,7 @@
 import { defineComponent, PropType, watchEffect, Ref, computed, ref, onMounted, onBeforeUnmount, reactive } from "vue";
 import { CellAreasDao, getAreaRectStyle } from "../model/cell-area";
 import { copy2Clipboard, json2Csv, csv2Json } from "../utils/process";
-
+import "../theme-chalk/cell-area.scss";
 export type UseMountParams = {
   isParentMounted: Ref<boolean>;
   getTableBodyConatiner: () => HTMLElement;
@@ -229,7 +229,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss">
-@import "../theme-chalk/cell-area.scss";
-</style>

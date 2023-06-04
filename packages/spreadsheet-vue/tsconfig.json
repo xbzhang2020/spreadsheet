@@ -25,6 +25,6 @@
       "@": ["./*"]
     }
   },
-  "include": ["/**/*.ts", "/**/*.d.ts", "**/*.vue", "index.ts"],
+  "include": ["/**/*.ts", "/**/*.d.ts", "**/*.vue", "index.ts", "vite.config.js"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
