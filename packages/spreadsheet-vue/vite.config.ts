@@ -8,7 +8,6 @@ export default defineConfig({
   plugins: [vue()],
   build: {
     outDir: "lib",
-    // minify: false,
     lib: {
       entry: "./index.ts",
     },
@@ -19,11 +18,16 @@ export default defineConfig({
         {
           format: "es",
           dir: "es",
+          entryFileNames: "[name].js",
         },
         {
           format: "umd",
           dir: "lib",
           name: "SpreadSheet",
+          entryFileNames: "[name].umd.cjs",
+          globals: {
+            vue: "Vue",
+          },
         },
       ],
     },
