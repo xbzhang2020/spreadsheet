@@ -27,6 +27,8 @@ export default defineConfig({
     vue(),
     dts({
       copyDtsFiles: true,
+      rollupTypes: true,
+      insertTypesEntry: true,
     }),
   ],
   build: {

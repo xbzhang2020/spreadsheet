@@ -13,9 +13,9 @@ export const getTableDataSource = (rowLength: number, columnLength: number) => {
     key: col,
   }));
 
-  const rows: BaseObject[] = [];
+  const rows = [];
   for (let i = 0; i < rowLength; i++) {
-    const row: BaseObject = {};
+    const row = {};
     columnKeys.forEach((col, j) => {
       row[col] = Number(`${i}${j}`);
     });

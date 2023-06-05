@@ -17,5 +17,5 @@
     },
     "lib": ["esnext", "dom"]
   },
-  "include": ["types", "src", "components", "*.d.ts", "index.ts"]
+  "include": ["types", "utils", "src", "model", "components", "*.d.ts", "index.ts"]
 }

@@ -45,11 +45,7 @@ type TraverseTreeParamsConfig = {
   onlyLeaf?: boolean;
 };
 
-export const traverseTree = (
-  treeData: any[],
-  cb = (item: any) => item,
-  config: TraverseTreeParamsConfig = {}
-): any[] => {
+export const traverseTree = (treeData: any[], cb = (item: any) => item, config: TraverseTreeParamsConfig = {}) => {
   if (!treeData || !treeData.length) return [];
   const { onlyLeaf } = config;
   treeData.forEach(item => {
@@ -63,6 +59,7 @@ export const traverseTree = (
 };
 
 export const csv2Json = (clipboardData: ClipboardEvent["clipboardData"]) => {
+  if (!clipboardData) return;
   const paste = clipboardData.getData("text");
   let arr = paste.split("\r");
   arr = paste.split("\n");
@@ -96,12 +93,14 @@ export const copy2Clipboard = (str: string) => {
   el.style.position = "absolute";
   el.style.left = "-9999px";
   document.body.appendChild(el);
-  const selected = document.getSelection().rangeCount > 0 ? document.getSelection().getRangeAt(0) : false;
+  const selection = document.getSelection();
+  if (!selection) return;
+  const selected = selection.rangeCount > 0 ? selection.getRangeAt(0) : false;
   el.select();
   document.execCommand("copy");
   document.body.removeChild(el);
   if (selected) {
-    document.getSelection().removeAllRanges();
-    document.getSelection().addRange(selected);
+    selection.removeAllRanges();
+    selection.addRange(selected);
   }
 };

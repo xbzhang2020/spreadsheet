@@ -57,7 +57,7 @@ const initAreaData = (): CellAreaData => {
   };
 };
 
-const initArea = (option: DeepPartial<CellArea> = {}) => {
+const initArea = (option: any = {}) => {
   const res: CellArea = {
     coord: initAreaCoord(),
     indices: [],
@@ -656,7 +656,7 @@ class CellAreasDao {
     });
   }
 
-  setSelectCell(startCell: CellOption) {
+  setSelectCell(startCell: CellOption | null) {
     this.selectCell = startCell;
   }
 

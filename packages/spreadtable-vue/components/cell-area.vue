@@ -35,15 +35,15 @@ import "../theme-chalk/cell-area.scss";
 export type UseMountParams = {
   isParentMounted: Ref<boolean>;
   getTableBodyConatiner: () => HTMLElement | null;
-  getCellAreaContainer: () => HTMLElement;
+  getCellAreaContainer: () => HTMLElement | null;
 };
 
 const useMount = (params: UseMountParams) => {
   const { isParentMounted, getTableBodyConatiner, getCellAreaContainer } = params;
 
   const mount = () => {
-    const tableContainer: HTMLElement = getTableBodyConatiner();
-    const areaContainer: HTMLElement = getCellAreaContainer();
+    const tableContainer: HTMLElement | null = getTableBodyConatiner();
+    const areaContainer: HTMLElement | null = getCellAreaContainer();
 
     if (!tableContainer || !areaContainer || tableContainer.contains(areaContainer)) return;
     tableContainer.style.position = "relative";
@@ -99,7 +99,7 @@ export default defineComponent({
     });
 
     const currentCell = computed(() => props.mouseEnteredCell);
-    const cellAreas = reactive(new CellAreasDao());
+    const cellAreas = reactive(new CellAreasDao()) as CellAreasDao;
 
     watchEffect(() => {
       const { dataSource, rowKey, columnKey, columns, expandRowKeys } = props;
@@ -133,7 +133,7 @@ export default defineComponent({
       }
       cellAreas.mainArea.setDragging(true);
       cellAreas.setSelectCell(currentCell.value);
-      cellAreas.setMainArea(null);
+      cellAreas.setMainArea();
     };
 
     const handleDragBtnMousedown = () => {
@@ -189,7 +189,9 @@ export default defineComponent({
       if (!cellAreas.selectCell) return;
 
       const clipboardData = csv2Json(event.clipboardData);
+      if (!clipboardData) return;
       const indices = cellAreas.setCellsData(cellAreas.selectCell?.cell as unknown as HTMLElement, clipboardData);
+      if (!indices) return;
       cellAreas.setMainArea(indices[1]);
     };
 

@@ -1,6 +1,6 @@
-declare type DeepPartial<T> = {
-  [U in keyof T]?: T[U] extends object ? DeepPartial<T[U]> : T[U];
-};
+// declare type DeepPartial<T> = {
+//   [U in keyof T]?: T[U] extends object ? DeepPartial<T[U]> : T[U];
+// };
 
 declare interface CellAreas {
   select: CellArea;
