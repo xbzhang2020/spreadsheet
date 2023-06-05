@@ -112,7 +112,7 @@ const getCellAreaDataByIndices = (table: TableOption, indices: number[][]) => {
     const items = data.columns.map(column => getCellValue(row, column));
     prev.push(items);
     return prev;
-  }, []);
+  }, [] as any[]);
   return data;
 };
 
@@ -145,7 +145,7 @@ const setCellsData = (table: TableOption, startIndices: CellAreaIndices, source:
   return indices;
 };
 
-const calcMainAreaCoord = (startCell: HTMLElement, endCell: HTMLElement) => {
+const calcMainAreaCoord = (startCell: HTMLElement, endCell?: HTMLElement) => {
   const rect = getElementRect(startCell);
   const orientation: CellAreaOrientation[] = [];
 
@@ -184,8 +184,10 @@ const calcExtensionAreaIndices = (
   endCell: HTMLElement,
   orientation: CellAreaOrientation[]
 ) => {
-  const [index1, index2] = getCellIndices(endCell);
+  const data = getCellIndices(endCell);
+  if (!data) return null;
 
+  const [index1, index2] = data;
   let colStart = mainIndices[0][1],
     colEnd = mainIndices[1][1],
     rowStart = mainIndices[0][0],
@@ -276,7 +278,7 @@ const getPureExtensionAreaTip = (extensionArea: CellArea, values: unknown[][], c
   }
 
   const tbody = cell?.closest("tbody");
-  const tbodyRect = getElementRect(tbody);
+  const tbodyRect = tbody ? getElementRect(tbody) : null;
 
   const style: any = {
     left: undefined,
@@ -287,13 +289,13 @@ const getPureExtensionAreaTip = (extensionArea: CellArea, values: unknown[][], c
 
   const offset = 5;
 
-  if (top >= tbodyRect?.height) {
+  if (tbodyRect && top >= tbodyRect.height) {
     style.bottom = offset;
   } else {
     style.top = top + offset;
   }
 
-  if (left >= tbodyRect?.width) {
+  if (tbodyRect && left >= tbodyRect.width) {
     style.right = offset;
   } else {
     style.left = left + offset;
@@ -370,7 +372,7 @@ const calcPureExtensionAreaValues = (table: TableOption, mainArea: CellArea, ext
 };
 
 const getCellAreaDataSource = (table: Partial<TableOption>) => {
-  const { dataSource, expandRowKeys, rowKey } = table;
+  const { dataSource = [], expandRowKeys, rowKey = "" } = table;
 
   if (!expandRowKeys || expandRowKeys?.length < 1) return dataSource;
   const tableData: unknown[] = [];
@@ -387,12 +389,15 @@ const getCellAreaDataSource = (table: Partial<TableOption>) => {
   return tableData;
 };
 
-const getCellIndices = (cell: HTMLElement): CellAreaIndices => {
-  if (!cell) return;
+const getCellIndices = (cell?: HTMLElement): CellAreaIndices | null => {
+  if (!cell) return null;
   const td = cell.closest("td");
-  const tr = td.closest("tr");
-  const tbody = tr.closest("tbody");
-  let rowIndex, colIndex;
+  const tr = td?.closest("tr");
+  const tbody = tr?.closest("tbody");
+  if (!tbody || !tr) return null;
+
+  let rowIndex = null,
+    colIndex = null;
 
   // 过滤不展示的行
   for (let i = 0, index = 0; i < tbody.rows.length; i++) {
@@ -415,14 +420,16 @@ const getCellIndices = (cell: HTMLElement): CellAreaIndices => {
     }
   }
 
+  if (rowIndex === null || colIndex === null) return null;
   return [rowIndex, colIndex];
 };
 
 const getEndCellByIndices = (startCell: HTMLElement, indices: number[]) => {
-  if (!startCell) return;
+  if (!startCell) return null;
   const td = startCell.closest("td");
-  const tr = td.closest("tr");
-  const tbody = tr.closest("tbody");
+  const tr = td?.closest("tr");
+  const tbody = tr?.closest("tbody");
+  if (!tbody || !tr) return null;
 
   const rows: HTMLTableRowElement[] = [];
   // 过滤不展示的行
@@ -440,9 +447,11 @@ const getEndCellByIndices = (startCell: HTMLElement, indices: number[]) => {
 };
 
 const getAreaIndices = (startCell: HTMLElement, endCell?: HTMLElement): CellAreaIndices[] | null => {
-  if (!startCell) return;
-  const start: CellAreaIndices = getCellIndices(startCell);
+  const start = getCellIndices(startCell);
+  if (!start) return null;
+
   let end = getCellIndices(endCell);
+
   if (end) {
     const temp = Array.from(start);
     if (end[0] < start[0]) {
@@ -475,8 +484,8 @@ class MainAreaDao implements CellAreaDao {
     this.area = area;
   }
 
-  setLayout(startCell: HTMLElement, endCell: HTMLElement | number[] = null) {
-    const _endCell = Array.isArray(endCell) ? getEndCellByIndices(startCell, endCell) : endCell;
+  setLayout(startCell: HTMLElement, endCell?: HTMLElement | number[]) {
+    const _endCell = Array.isArray(endCell) ? getEndCellByIndices(startCell, endCell) || undefined : endCell;
     this.area.coord = calcMainAreaCoord(startCell, _endCell);
   }
 
@@ -488,9 +497,9 @@ class MainAreaDao implements CellAreaDao {
     return this.area.indices;
   }
 
-  setIndices(startCell: HTMLElement, endCell: HTMLElement | number[] = null) {
-    const _endCell = Array.isArray(endCell) ? getEndCellByIndices(startCell, endCell) : endCell;
-    this.area.indices = getAreaIndices(startCell, _endCell);
+  setIndices(startCell: HTMLElement, endCell?: HTMLElement | number[]) {
+    const _endCell = Array.isArray(endCell) ? getEndCellByIndices(startCell, endCell) || undefined : endCell;
+    this.area.indices = getAreaIndices(startCell, _endCell) || [];
   }
 
   setData(table: TableOption, indices: number[][]) {
@@ -543,7 +552,7 @@ class ExtensionAreaDao implements CellAreaDao {
   }
 
   setIndices(mainIndices: number[][], endCell: HTMLElement, orientation: CellAreaOrientation[]) {
-    this.area.indices = calcExtensionAreaIndices(mainIndices, endCell, orientation);
+    this.area.indices = calcExtensionAreaIndices(mainIndices, endCell, orientation) || [];
   }
 
   getIndices() {
@@ -625,7 +634,7 @@ class CopyAreaDao implements CellAreaDao {
 class CellAreasDao {
   table = {} as TableOption;
 
-  selectCell: CellOption = null;
+  selectCell: CellOption | null = null;
   mainArea: MainAreaDao;
   extensionArea: ExtensionAreaDao;
   copyArea: CopyAreaDao;
@@ -658,7 +667,8 @@ class CellAreasDao {
   }
 
   setMainArea(endCell?: HTMLElement | number[]) {
-    this.mainArea.setArea(this.table, this.selectCell?.cell, endCell);
+    if (!this.selectCell) return;
+    this.mainArea.setArea(this.table, this.selectCell.cell, endCell);
   }
 
   setExtensionArea(endCell: HTMLElement) {
@@ -674,11 +684,13 @@ class CellAreasDao {
   }
 
   getPureExtensionAreaTip(source: unknown[][]) {
+    if (!this.selectCell) return null;
     return getPureExtensionAreaTip(this.extensionArea.area, source, this.selectCell?.cell);
   }
 
   setCellsData(startCell: HTMLElement | CellAreaIndices, source: unknown[][]) {
     const indices = Array.isArray(startCell) ? startCell : getCellIndices(startCell);
+    if (!indices) return;
     return setCellsData(this.table, indices, source);
   }
 }

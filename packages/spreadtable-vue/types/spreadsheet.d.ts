@@ -60,7 +60,7 @@ declare interface CellAreaData {
 }
 
 declare interface CellAreaDrag {
-  mode: "clip" | "copy" | "default";
+  mode: "clip" | "copy" | "default" | null;
   dragging: boolean;
 }
 
