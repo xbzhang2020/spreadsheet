@@ -11,6 +11,7 @@ export default defineConfig({
       copyDtsFiles: true,
       rollupTypes: true,
       insertTypesEntry: true,
+      aliasesExclude: ["vue-demi"],
     }),
   ],
   build: {
@@ -37,6 +38,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ["vue-demi"],
+    exclude: ["vue-demi", "vue", "vue2"],
   },
 });
