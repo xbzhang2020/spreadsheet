@@ -1,29 +1,34 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-// import dts from "vite-plugin-dts";
+import dts from "vite-plugin-dts";
 
-function processSass() {
-  return {
-    name: "process-sass",
-    generateBundle(options, bundle) {
-      const keys = Object.keys(bundle);
+// function processSass() {
+//   return {
+//     name: "process-sass",
+//     generateBundle(options, bundle) {
+//       const keys = Object.keys(bundle);
 
-      for (const key of keys) {
-        const bundler = bundle[key];
-        this.emitFile({
-          type: "asset",
-          fileName: key, //文件名名不变
-          source: bundler.code.replace(/\.scss/g, ".css"),
-        });
-      }
-    },
-  };
-}
+//       for (const key of keys) {
+//         const bundler = bundle[key];
+//         this.emitFile({
+//           type: "asset",
+//           fileName: key, //文件名名不变
+//           source: bundler.code.replace(/\.scss/g, ".css"),
+//         });
+//       }
+//     },
+//   };
+// }
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), processSass()],
+  plugins: [
+    vue(),
+    dts({
+      copyDtsFiles: true,
+    }),
+  ],
   build: {
     outDir: "lib",
     lib: {
@@ -32,7 +37,7 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: ["vue", /\.scss/],
+      external: ["vue"],
       output: {
         globals: {
           vue: "Vue",
