@@ -3,24 +3,6 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import dts from "vite-plugin-dts";
 
-// function processSass() {
-//   return {
-//     name: "process-sass",
-//     generateBundle(options, bundle) {
-//       const keys = Object.keys(bundle);
-
-//       for (const key of keys) {
-//         const bundler = bundle[key];
-//         this.emitFile({
-//           type: "asset",
-//           fileName: key, //文件名名不变
-//           source: bundler.code.replace(/\.scss/g, ".css"),
-//         });
-//       }
-//     },
-//   };
-// }
-
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -50,6 +32,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "."),
+      vue: resolve(__dirname, "./node_modules/vue3/dist/vue.runtime.esm-browser.js"),
+      "vue-demi": resolve(__dirname, "./node_modules/vue-demi/lib/v3/index.mjs"),
     },
   },
   optimizeDeps: {

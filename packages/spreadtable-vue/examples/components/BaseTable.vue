@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue";
+import { ref, computed } from "vue-demi";
 import CellArea from "../../components/cell-area.vue";
 import { useMounted } from "@vueuse/core";
 import { getElTableBodyContainer } from "../../utils/adapter";

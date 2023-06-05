@@ -26,7 +26,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref } from "vue-demi";
 import { useGetMouseEnteredCell } from "../hooks/cell";
 import { getElTableBodyContainer } from "../../utils/adapter";
 import { useMounted } from "@vueuse/core";
