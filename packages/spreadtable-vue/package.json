@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "gulp",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint --ext .js,.ts,.vue ./"
   },
