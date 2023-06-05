@@ -3,10 +3,10 @@
   "version": "0.1.0-alpha.2",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "dev:3": "vue-demi-switch 3 vue3 && vite dev",
-    "build:3": "vue-demi-switch 3 vue3 && vite build",
+    "dev": "vite -c vite.vue3.config.js",
+    "build": "vite build -c vite.vue3.config.js",
+    "dev:3": "vue-demi-switch 3 vue3 && vite dev -c vite.vue3.config.js",
+    "build:3": "vue-demi-switch 3 vue3 && vite build -c vite.vue3.config.js",
     "preview": "vite preview",
     "lint": "eslint --ext .js,.ts,.vue ./"
   },
