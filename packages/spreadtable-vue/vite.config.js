@@ -6,16 +6,25 @@ import dts from "vite-plugin-dts";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue(),
     dts({
       copyDtsFiles: true,
       rollupTypes: true,
-      insertTypesEntry: true,
+      insertTypesEntry: false,
       aliasesExclude: ["vue-demi"],
+      // copyDtsFiles: true,
+      outputDir: ["lib/v3"],
+      // include: ['src/index.ts'],
+      // exclude: ["src/ignore"],
+      // aliasesExclude: [/^@components/],
+      staticImport: true,
+      skipDiagnostics: false,
+      // rollupTypes: true,
+      // insertTypesEntry: true,
     }),
+    vue(),
   ],
   build: {
-    outDir: "lib",
+    outDir: "./lib/v3",
     lib: {
       entry: "./index.ts",
       name: "Spreadsheet",
